@@ -1,7 +1,200 @@
 <!DOCTYPE html>
-<html>
-<body>
-<h1>Hola Mundo</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+<html lang="en">
+  <head>
+    <title>Prueba para tfg</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        margin: 0px;
+        overflow: hidden;
+      }
+      #example {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+		<div id="example"></div>
+  <script type="module">
+	//imports
+	
+	import * as THREE from '/build/three.module.js';
+
+	import { DeviceOrientationControls } from '/examples/jsm/controls/DeviceOrientationControls.js';
+  
+	import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
+	
+	import { OrbitControls } from '/examples/jsm/controls/OrbitControls.js';
+	
+	import {VRButton} from '/examples/jsm/webxr/VRButton.js';
+  
+	// variables
+    var camera, scene, renderer;
+    var effect, controls;
+    var element, container;
+
+    var clock = new THREE.Clock();
+	
+	var cube;
+	var cubes=[];
+	const LEFT = 37, RIGHT = 39, UP = 38, DOWN = 40, j = 106; 
+	//Ejecution
+    init();
+    animate();
+	
+	//Functions 	
+    function init() {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+	  renderer.xr.enabled = true;
+	  document.body.appendChild(VRButton.createButton(renderer));
+	  
+      element = renderer.domElement;
+	  container = document.getElementById('example');
+      container.appendChild(element);
+    
+
+      scene = new THREE.Scene();
+
+      // CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	camera.position.set(0,15,0);
+	scene.add(camera);
+
+      controls = new OrbitControls( camera, renderer.domElement );
+      //controls.rotateUp(Math.PI / 4);
+      controls.target.set(
+        camera.position.x + 0.1,
+        camera.position.y,
+        camera.position.z
+      );
+      controls.noZoom = true;
+      controls.noPan = true;
+
+      function setOrientationControls(e) {
+        if (!e.alpha) {
+          return;
+        }
+
+        controls = new THREE.DeviceOrientationControls(camera, true);
+        controls.connect();
+        controls.update();
+
+        element.addEventListener('click', fullscreen, false);
+
+        window.removeEventListener('deviceorientation', setOrientationControls, true);
+      }
+      window.addEventListener('deviceorientation', setOrientationControls, true);
+
+
+      var light = new THREE.HemisphereLight(0xffffff, 0x000000,1);
+      scene.add(light);
+
+
+      var material = new THREE.MeshPhongMaterial({
+        color: 0xADABAB
+      });
+
+      var geometry = new THREE.PlaneGeometry(5000, 5000);
+
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.rotation.x = -Math.PI / 2;
+      scene.add(mesh);
+	  
+	  for(let i = 1; i <= 150; i++)
+            createCube();
+        cubes.forEach((cube) => scene.add(cube));
+	
+	// SKYBOX/FOG
+	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0xffffffff, side: THREE.BackSide } );
+	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	 scene.add(skyBox);
+	scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+
+      window.addEventListener('resize', resize, false);
+      setTimeout(resize, 1);
+	  
+	  document.addEventListener("keydown", OnKeyDown, false);
+    }
+
+    function resize() {
+      var width = container.offsetWidth;
+      var height = container.offsetHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(width, height);
+    }
+
+    function update(dt) {
+      resize();
+
+      camera.updateProjectionMatrix();
+
+      controls.update(dt);
+    }
+
+    function render(dt) {
+      renderer.render(scene, camera);
+    }
+	
+    function animate(t) {
+     // requestAnimationFrame(animate);
+
+      update(clock.getDelta());
+      render(clock.getDelta());
+    }
+	renderer.setAnimationLoop(animate);
+    function fullscreen() {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      }
+    }
+	
+	function randomInRange(from, to) {
+        let x = Math.random() * (to - from);
+        return x + from;
+    };
+	
+	function createCube() {
+		let w = randomInRange(20, 500);
+		let h = randomInRange(80, 1000);
+		let d = randomInRange(20, 500);
+		let geometry = new THREE.CubeGeometry(w, h, d);
+		let material = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
+		let cube = new THREE.Mesh( geometry, material );
+		
+		cube.position.x = randomInRange(-2500, 2500);
+		cube.position.z = randomInRange(-2500, 2500);
+		cubes.push(cube);
+	
+	};	
+	function OnKeyDown(e) {
+		if(e.keyCode == LEFT) 
+			camera.position.x += 1;
+		else if(e.keyCode == RIGHT)
+			camera.position.x += -1;
+		else if(e.keyCode == UP)
+			camera.position.z += 1;
+		else if(e.keyCode == DOWN)
+			camera.position.z += -1;
+		else 
+		return;
+           };
+  </script>
+  </body>
 </html>
