@@ -20,6 +20,9 @@
   </head>
   <body>
 		<div id="example"></div>
+		
+	
+		
   <script type="module">
 	//imports
 	
@@ -33,19 +36,26 @@
 	
 	import { FirstPersonControls } from '/examples/jsm/controls/FirstPersonControls.js';
 	
+	import  FirstPersonVRControls  from '/examples/jsm/controls/FirstPersonVRControls.js';
+	
 	import { GUI } from '/examples/jsm/libs/dat.gui.module.js';
 	
 	//import {VRButton} from '/examples/jsm/webxr/VRButton.js';
   
 	// variables
    var camera, scene, renderer;
-    var effect, controls;
+    var effect, controls,fpVrControls;
     var element, container;
 
     var clock = new THREE.Clock();
 	
 	var cube;
 	var cubes=[];
+	
+	var params = {
+		Efecto: true,
+
+	};
 
     init();
     animate();
@@ -63,12 +73,23 @@
       camera = new THREE.PerspectiveCamera(90, 1, 1, 5000);
       camera.position.set(0, 10, 0);
       scene.add(camera);
+	  
+	  const rig = new THREE.Object3D();
+	  rig.add(camera);
+	  scene.add(rig);
+	  
+	  //controls = new FirstPersonControls(camera,element);
+	  controls = new DeviceOrientationControls(camera);
+        controls.connect();
+        controls.update();
+      fpVrControls = new FirstPersonVRControls(camera, scene,rig);
+      fpVrControls.movementSpeed =100;
+	  //controls.movementSpeed =100;
+	  fpVrControls.strafing = true;
+	  fpVrControls.verticalMovement = true;
+	  //controls.lookSpeed = 0.5;
 
-      controls = new FirstPersonControls(camera, element);
-      controls.movementSpeed =50;
-	  controls.lookSpeed = 0.5;
-
-      function setOrientationControls(e) {
+      /*function setOrientationControls(e) {
         if (!e.alpha) {
           return;
         }
@@ -82,7 +103,7 @@
         window.removeEventListener('deviceorientation', setOrientationControls, true);
       }
       window.addEventListener('deviceorientation', setOrientationControls, true);
-
+	*/
 
       var light = new THREE.HemisphereLight(0xffffff, 0x000000, 1);
       scene.add(light);
@@ -99,15 +120,19 @@
       scene.add(mesh);
 	  
 	  // SKYBOX/FOG
-	var skyBoxGeometry = new THREE.BoxGeometry( 5000, 5000, 5000 );
-	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x00CEC2, side: THREE.BackSide } );
-	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-	scene.add(skyBox);
+	  var skyBoxGeometry = new THREE.BoxGeometry( 5000, 5000, 5000 );
+	  var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x00CEC2, side: THREE.BackSide } );
+	  var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	  scene.add(skyBox);
 	
 	
-	for(let i = 1; i <= 150; i++)
-            createCube();
-        cubes.forEach((cube) => scene.add(cube));
+	  for(let i = 1; i <= 150; i++)
+              createCube();
+    
+	  cubes.forEach((cube) => scene.add(cube));
+		
+	  var gui = new GUI();
+	  gui.add( params, 'Efecto' );
 	
 
       window.addEventListener('resize', resize, false);
@@ -130,7 +155,8 @@
 
       camera.updateProjectionMatrix();
 
-      controls.update(dt);
+      fpVrControls.update(dt);
+	  controls.update(dt);
     }
 
     function render(dt) {
