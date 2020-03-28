@@ -32,7 +32,7 @@
   
 	import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 	
-	import { OrbitControls } from '/examples/jsm/controls/OrbitControls.js';
+	import { FlyControls } from '/examples/jsm/controls/FlyControls.js';
 	
 	import { FirstPersonControls } from '/examples/jsm/controls/FirstPersonControls.js';
 	
@@ -56,6 +56,8 @@
 		Efecto: true,
 
 	};
+	
+	var is_mobile= /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     init();
     animate();
@@ -71,23 +73,44 @@
       scene = new THREE.Scene();
 
       camera = new THREE.PerspectiveCamera(90, 1, 1, 5000);
-      camera.position.set(0, 10, 0);
+      camera.position.set(0, 15, 0);
       scene.add(camera);
 	  
 	  const rig = new THREE.Object3D();
 	  rig.add(camera);
 	  scene.add(rig);
 	  
-	  //controls = new FirstPersonControls(camera,element);
-	  controls = new DeviceOrientationControls(camera);
+
+    // Conditionally load VR or Fly controls, based on whether we're on a mobile device
+    if (is_mobile) {
+		
+		effect = new StereoEffect(renderer);
+		
+		fpVrControls = new FirstPersonVRControls(camera, scene,rig);
+		fpVrControls.movementSpeed =50;
+		fpVrControls.strafing = true;
+		fpVrControls.verticalMovement = true; 
+		
+        controls = new DeviceOrientationControls(camera);
         controls.connect();
         controls.update();
-      fpVrControls = new FirstPersonVRControls(camera, scene,rig);
-      fpVrControls.movementSpeed =100;
-	  //controls.movementSpeed =100;
-	  fpVrControls.strafing = true;
-	  fpVrControls.verticalMovement = true;
-	  //controls.lookSpeed = 0.5;
+    } else {
+        // WASD-style movement controls
+        controls = new FirstPersonControls(camera,element);
+		controls.movementSpeed =80;
+		controls.lookSpeed =0.1;
+		
+
+        // Disable automatic forward movement
+        controls.autoForward = false;
+
+        // Click and drag to look around with the mouse
+        controls.dragToLook = true;
+
+        // Movement and roll speeds, adjust these and see what happens!
+        controls.movementSpeed = 20;
+
+    }
 
       /*function setOrientationControls(e) {
         if (!e.alpha) {
@@ -130,9 +153,6 @@
               createCube();
     
 	  cubes.forEach((cube) => scene.add(cube));
-		
-	  var gui = new GUI();
-	  gui.add( params, 'Efecto' );
 	
 
       window.addEventListener('resize', resize, false);
@@ -147,20 +167,28 @@
       camera.updateProjectionMatrix();
 
       renderer.setSize(width, height);
-      effect.setSize(width, height);
+	  
+	  if(is_mobile)
+        effect.setSize(width, height);
     }
 
     function update(dt) {
       resize();
 
       camera.updateProjectionMatrix();
-
-      fpVrControls.update(dt);
-	  controls.update(dt);
+	  if(is_mobile){
+		fpVrControls.update(dt);
+	  }
+	  controls.update( dt);
     }
 
     function render(dt) {
-      effect.render(scene, camera);
+      
+	  if(is_mobile){
+		effect.render(scene, camera);
+	  } else {
+		renderer.render(scene, camera);
+	  }
     }
 
     function animate(t) {
