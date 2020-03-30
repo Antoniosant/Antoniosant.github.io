@@ -36,6 +36,9 @@
 	
 	import { FirstPersonControls } from '/examples/jsm/controls/FirstPersonControls.js';
 	
+	import { PointerLockControls } from '/examples/jsm/controls/PointerLockControls.js';
+	
+	
 	import  FirstPersonVRControls  from '/examples/jsm/controls/FirstPersonVRControls.js';
 	
 	import { GUI } from '/examples/jsm/libs/dat.gui.module.js';
@@ -52,10 +55,7 @@
 	var cube;
 	var cubes=[];
 	
-	var params = {
-		Efecto: true,
-
-	};
+	
 	
 	var is_mobile= /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -63,7 +63,9 @@
     animate();
 
     function init() {
-      renderer = new THREE.WebGLRenderer({antialias: true});
+      
+	  renderer = new THREE.WebGLRenderer({antialias: true});
+	  renderer.setPixelRatio( window.devicePixelRatio );
       element = renderer.domElement;
       container = document.getElementById('example');
       container.appendChild(element);
@@ -72,8 +74,8 @@
 
       scene = new THREE.Scene();
 
-      camera = new THREE.PerspectiveCamera(90, 1, 1, 5000);
-      camera.position.set(0, 15, 0);
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
+      camera.position.set(0, 1, 0);
       scene.add(camera);
 	  
 	  const rig = new THREE.Object3D();
@@ -87,7 +89,7 @@
 		effect = new StereoEffect(renderer);
 		
 		fpVrControls = new FirstPersonVRControls(camera, scene,rig);
-		fpVrControls.movementSpeed =50;
+		fpVrControls.movementSpeed =100;
 		fpVrControls.strafing = true;
 		fpVrControls.verticalMovement = true; 
 		
@@ -96,19 +98,22 @@
         controls.update();
     } else {
         // WASD-style movement controls
-        controls = new FirstPersonControls(camera,element);
-		controls.movementSpeed =80;
-		controls.lookSpeed =0.1;
-		
+        controls = new FirstPersonControls( camera,element  )
 
+		//Controles First Person
+		
+		controls.movementSpeed =100;
+		controls.lookSpeed =0.1;
+	
         // Disable automatic forward movement
         controls.autoForward = false;
-
-        // Click and drag to look around with the mouse
-        controls.dragToLook = true;
-
-        // Movement and roll speeds, adjust these and see what happens!
-        controls.movementSpeed = 20;
+		controls.heightSpeed = true;
+		controls.heightCoef = 0;
+		controls.heightMin = 0.0;
+		controls.heightMax = 10.0;
+		
+		
+        
 
     }
 
@@ -135,11 +140,11 @@
       var material = new THREE.MeshPhongMaterial({
         color: 0xB8B9B9,
       });
-
       var geometry = new THREE.PlaneGeometry(5000, 5000);
 
       var mesh = new THREE.Mesh(geometry, material);
       mesh.rotation.x = -Math.PI / 2;
+	  mesh.position.y =0;
       scene.add(mesh);
 	  
 	  // SKYBOX/FOG
@@ -153,6 +158,8 @@
               createCube();
     
 	  cubes.forEach((cube) => scene.add(cube));
+	  
+	  
 	
 
       window.addEventListener('resize', resize, false);
@@ -166,6 +173,8 @@
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
+	  controls.handleResize();
+		
       renderer.setSize(width, height);
 	  
 	  if(is_mobile)
@@ -174,22 +183,24 @@
 
     function update(dt) {
       resize();
-
+		
       camera.updateProjectionMatrix();
 	  if(is_mobile){
 		fpVrControls.update(dt);
 	  }
+	 
 	  controls.update( dt);
     }
 
     function render(dt) {
-      
+  
 	  if(is_mobile){
 		effect.render(scene, camera);
 	  } else {
 		renderer.render(scene, camera);
 	  }
     }
+
 
     function animate(t) {
       requestAnimationFrame(animate);
@@ -217,12 +228,13 @@
 	function createCube() {
 		var w = randomInRange(20, 500);
 		var h = randomInRange(80, 1000);
-		var d = randomInRange(20, 500);
+		var d = w;
 		var geometry = new THREE.BoxGeometry(w, h, d);
 		var material = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
 		var cube = new THREE.Mesh( geometry, material );
 		cube.position.x = randomInRange(-2500, 2500);
 		cube.position.z = randomInRange(-2500, 2500);
+		cube.position.y = h/2;
 		cubes.push(cube);
 };
   </script>
