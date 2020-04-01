@@ -44,7 +44,7 @@
 		</style>
 	</head>
 	<body>
-		
+		<div id="example"></div>
 
 		<script type="module">
 
@@ -78,7 +78,7 @@
 			
 			var is_mobile= /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 			
-			var effect,fpVrControls;
+			var effect,element,container;
 			
 			var clock = new THREE.Clock();
 			
@@ -92,7 +92,10 @@
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+				//document.body.appendChild( renderer.domElement );
+				element = renderer.domElement;
+				container = document.getElementById('example');
+				container.appendChild(element);
 				
 				
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
@@ -116,19 +119,13 @@
 					
 					effect = new StereoEffect(renderer);
 			
-					/*
-					fpVrControls = new FirstPersonVRControls(camera, scene,rig);
-					fpVrControls.movementSpeed =100;
-					fpVrControls.strafing = true;
-					fpVrControls.verticalMovement = true; 
-					*/
 					controls = new DeviceOrientationControls(camera);
 					controls.connect();
 					
 					
 
 					document.addEventListener( 'click', function () {
-	
+						fullscreen();
 						controls.connect();
 
 					}, false );
@@ -139,7 +136,7 @@
 					controls = new PointerLockControls( camera, document.body );
 					
 					document.addEventListener( 'click', function () {
-	
+						
 						controls.lock();
 
 					}, false );
@@ -299,6 +296,18 @@
 				if(is_mobile)
 					effect.setSize(width, height);
 				
+			}
+			
+			function fullscreen() {
+				if (container.requestFullscreen) {
+					container.requestFullscreen();
+				} else if (container.msRequestFullscreen) {
+					container.msRequestFullscreen();
+				} else if (container.mozRequestFullScreen) {
+					container.mozRequestFullScreen();
+				} else if (container.webkitRequestFullscreen) {
+					container.webkitRequestFullscreen();
+				}
 			}
 			
 			function moverDerecho(distancia) {
