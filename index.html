@@ -342,17 +342,17 @@
 					}
 
 					prevTime = time;
+					
+					renderer.render(scene, camera);
 
 				} else {
 					effect.render(scene, camera);
 					fpVrControls.update(clock.getDelta());
 				}
 
-				if(is_mobile){
-					effect.render(scene, camera);
-				} else {
-					renderer.render(scene, camera);
-				}
+			
+					
+				
 
 			}
 
