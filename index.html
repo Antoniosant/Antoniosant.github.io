@@ -44,17 +44,7 @@
 		</style>
 	</head>
 	<body>
-		<div id="blocker">
-
-			<div id="instructions">
-				<span style="font-size:36px">Click to play</span>
-				<br /><br />
-				Move: WASD<br/>
-				Jump: SPACE<br/>
-				Look: MOUSE
-			</div>
-
-		</div>
+		
 
 		<script type="module">
 
@@ -132,48 +122,43 @@
 					controls.connect();
 					controls.update();
 					
-					var blocker = document.getElementById( 'blocker' );
-					var instructions = document.getElementById( 'instructions' );
 
-					instructions.addEventListener( 'click', function () {
+					document.addEventListener( 'click', function () {
 	
 						controls.connect();
 
 					}, false );
-					controls.addEventListener( 'connect', function () {
-
-						instructions.style.display = 'none';
-						blocker.style.display = 'none';
-
-					} );
+					
 					
 					
 				} else {
 					controls = new PointerLockControls( camera, document.body );
+					
+					
 
-					var blocker = document.getElementById( 'blocker' );
+					/*var blocker = document.getElementById( 'blocker' );
 					var instructions = document.getElementById( 'instructions' );
-
-					instructions.addEventListener( 'click', function () {
+					*/
+					document.addEventListener( 'click', function () {
 	
 						controls.lock();
 
 					}, false );
-
+					/*
 					controls.addEventListener( 'lock', function () {
 
-						instructions.style.display = 'none';
-						blocker.style.display = 'none';
+						//instructions.style.display = 'none';
+						//blocker.style.display = 'none';
 
 					} );
 
 					controls.addEventListener( 'unlock', function () {
 
-						blocker.style.display = 'block';
-						instructions.style.display = '';
+						//blocker.style.display = 'block';
+						//instructions.style.display = '';
 
 					} );
-
+					*/
 					scene.add( controls.getObject() );
 
 					var onKeyDown = function ( event ) {
