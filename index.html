@@ -81,6 +81,8 @@
 			var effect,fpVrControls;
 			
 			var clock = new THREE.Clock();
+			
+			var vec = new THREE.Vector3();
 
 			init();
 			animate();
@@ -298,6 +300,23 @@
 					effect.setSize(width, height);
 				
 			}
+			
+			function moverDerecho(distancia) {
+				vec.setFromMatrixColumn( camera.matrix, 0 );
+
+				camera.position.addScaledVector( vec, distance );
+			}
+			function moverAdelante(distancia) {
+				// move forward parallel to the xz-plane
+				// assumes camera.up is y-up
+
+				vec.setFromMatrixColumn( camera.matrix, 0 );
+
+				vec.crossVectors( camera.up, vec );
+
+				camera.position.addScaledVector( vec, distance );
+			}
+			
 
 			function animate() {
 
@@ -333,9 +352,14 @@
 						canJump = true;
 
 					}*/
-
-					controls.moveRight( - velocity.x * delta );
-					controls.moveForward( - velocity.z * delta );
+					if(is_mobile){
+						moverDerecho(- velocity.x * delta );
+						moverAdelante( - velocity.z * delta );
+					} else {
+						controls.moveRight( - velocity.x * delta );
+						controls.moveForward( - velocity.z * delta );
+					}
+					
 
 					//controls.getObject().position.y += ( velocity.y * delta ); // new behavior
 
