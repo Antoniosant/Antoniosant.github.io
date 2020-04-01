@@ -287,9 +287,9 @@
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				
-				if(is_mobile)
+				if(is_mobile){
 					effect.setSize(width, height);
-
+				
 			}
 
 			function animate() {
@@ -348,7 +348,11 @@
 					fpVrControls.update(clock.getDelta());
 				}
 
-				renderer.render( scene, camera );
+				if(is_mobile){
+					effect.render(scene, camera);
+				} else {
+					renderer.render(scene, camera);
+				}
 
 			}
 
