@@ -140,7 +140,12 @@
 						controls.connect();
 
 					}, false );
+					controls.addEventListener( 'connect', function () {
 
+						instructions.style.display = 'none';
+						blocker.style.display = 'none';
+
+					} );
 					
 					
 				} else {
