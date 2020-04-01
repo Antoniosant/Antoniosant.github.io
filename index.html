@@ -304,7 +304,7 @@
 			function moverDerecho(distancia) {
 				vec.setFromMatrixColumn( camera.matrix, 0 );
 
-				camera.position.addScaledVector( vec, distance );
+				camera.position.addScaledVector( vec, distancia );
 			}
 			function moverAdelante(distancia) {
 				// move forward parallel to the xz-plane
@@ -314,7 +314,7 @@
 
 				vec.crossVectors( camera.up, vec );
 
-				camera.position.addScaledVector( vec, distance );
+				camera.position.addScaledVector( vec, distancia );
 			}
 			
 
