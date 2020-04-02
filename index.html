@@ -41,11 +41,18 @@
 
 				cursor: pointer;
 			}
+			
+			b {
+				color: black
+			}
 		</style>
 	</head>
 	<body>
 		<div id="example"></div>
-
+		
+		<div id="info"> <b>Controles</b> <br/>
+		<b>WASD o flechas->mover, </b><b>En ordenador(click)->vista, </b><b>En smartphone(orientación)->vista</b> </div>
+			
 		<script type="module">
 
 			import * as THREE from '/build/three.module.js';
@@ -126,7 +133,6 @@
 
 					document.addEventListener( 'click', function () {
 						fullscreen();
-						controls.connect();
 
 					}, false );
 					
