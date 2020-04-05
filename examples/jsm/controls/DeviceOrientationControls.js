@@ -78,8 +78,8 @@ var DeviceOrientationControls = function ( object ) {
 
 					window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
 					window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
-					window.addEventListener( 'keydown', _onKeyDown, false );
-					window.addEventListener( 'keyup', _onKeyUp, false );
+					//window.addEventListener( 'keydown', _onKeyDown, false );
+					//window.addEventListener( 'keyup', _onKeyUp, false );
 
 				}
 

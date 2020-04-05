@@ -90,6 +90,8 @@
 			var clock = new THREE.Clock();
 			
 			var vec = new THREE.Vector3();
+			
+			var vecPrueba = new THREE.Vector3();
 
 			init();
 			animate();
@@ -107,10 +109,14 @@
 				
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.y = 10;
+				
+				
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xffffff );
 				scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+				
+				
 
 				var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
 				light.position.set( 0.5, 1, 0.75 );
@@ -211,7 +217,7 @@
 				document.addEventListener( 'keydown', onKeyDown, false );
 				document.addEventListener( 'keyup', onKeyUp, false );
 
-				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 10 );
 				 
 				// floor
 
@@ -332,19 +338,60 @@
 				camera.position.addScaledVector( vec, distancia );
 			}
 			
-
+			function DetectObstaculo(camera){
+					var vec = new THREE.Vector3;
+					var aux = new THREE.Vector3;
+					var axis = new THREE.Vector3(0,1,0);
+					var intersections;
+					
+					camera.getWorldDirection(vec);
+					
+					raycaster.ray.origin.copy( camera.position );
+					raycaster.ray.direction.copy(vec);
+					
+					//raycaster.ray.origin.z += 2;
+					
+					intersections = raycaster.intersectObjects( objects );
+					if(intersections.length >0)
+						moveForward = false;
+						
+					aux = vec.negate();
+					raycaster.ray.direction.copy(aux);
+					
+					//raycaster.ray.origin.z -= 2;
+					
+					intersections = raycaster.intersectObjects( objects );
+					if(intersections.length >0)
+						moveBackward = false;
+						
+					aux = vec.normalize();
+					aux = vec.applyAxisAngle(axis,-Math.PI/2);
+					
+					raycaster.ray.direction.copy(aux);
+					
+					//raycaster.ray.origin.x -= 2;
+					intersections = raycaster.intersectObjects( objects );
+					if(intersections.length >0)
+						moveLeft = false;
+					
+					aux = vec.normalize();
+					aux = vec.applyAxisAngle(axis,Math.PI/2);
+					
+					raycaster.ray.direction.copy(aux);
+					
+					//raycaster.ray.origin.x += 2;
+					intersections = raycaster.intersectObjects( objects );
+					if(intersections.length >0)
+						moveRight = false;
+			}
+			
 			function animate() {
 
 				requestAnimationFrame( animate );
-
-				
-
-					//raycaster.ray.origin.copy( controls.getObject().position );
-					//raycaster.ray.origin.y -= 10;
-
-					//var intersections = raycaster.intersectObjects( objects );
-
-					//var onObject = intersections.length > 0;
+						
+					
+					
+					DetectObstaculo(camera);
 
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;
@@ -352,7 +399,6 @@
 					velocity.x -= velocity.x * 10.0 * delta;
 					velocity.z -= velocity.z * 10.0 * delta;
 
-					velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
 					direction.z = Number( moveForward ) - Number( moveBackward );
 					direction.x = Number( moveRight ) - Number( moveLeft );
@@ -361,12 +407,7 @@
 					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
 					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
-					/*if ( onObject === true ) {
-
-						velocity.y = Math.max( 0, velocity.y );
-						canJump = true;
-
-					}*/
+					
 					if(is_mobile){
 						moverDerecho(- velocity.x * delta );
 						moverAdelante( - velocity.z * delta );
@@ -375,17 +416,6 @@
 						controls.moveForward( - velocity.z * delta );
 					}
 					
-
-					//controls.getObject().position.y += ( velocity.y * delta ); // new behavior
-
-					/*if ( controls.getObject().position.y < 10 ) {
-
-						velocity.y = 0;
-						controls.getObject().position.y = 10;
-
-						canJump = true;
-
-					}*/
 
 					prevTime = time;
 					
