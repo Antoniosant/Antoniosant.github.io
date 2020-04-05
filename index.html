@@ -6,41 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<style>
-			#blocker {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0,0,0,0.5);
-			}
-
-			#instructions {
-				width: 100%;
-				height: 100%;
-
-				display: -webkit-box;
-				display: -moz-box;
-				display: box;
-
-				-webkit-box-orient: horizontal;
-				-moz-box-orient: horizontal;
-				box-orient: horizontal;
-
-				-webkit-box-pack: center;
-				-moz-box-pack: center;
-				box-pack: center;
-
-				-webkit-box-align: center;
-				-moz-box-align: center;
-				box-align: center;
-
-				color: #ffffff;
-				text-align: center;
-				font-family: Arial;
-				font-size: 14px;
-				line-height: 24px;
-
-				cursor: pointer;
-			}
+			
 			
 			b {
 				color: black
@@ -85,13 +51,15 @@
 			
 			var is_mobile= /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 			
-			var effect,element,container;
+			var effect,element,container,cube;
 			
 			var clock = new THREE.Clock();
 			
 			var vec = new THREE.Vector3();
 			
 			var vecPrueba = new THREE.Vector3();
+			
+			
 
 			init();
 			animate();
@@ -221,76 +189,21 @@
 				 
 				// floor
 
-				var floorGeometry = new THREE.PlaneBufferGeometry( 2000, 2000, 100, 100 );
-				floorGeometry.rotateX( - Math.PI / 2 );
+				var material = new THREE.MeshPhongMaterial({
+					color: 0xB8B9B9,
+				});
+				var geometry = new THREE.PlaneGeometry(5000, 5000);
 
-				// vertex displacement
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.rotation.x = -Math.PI / 2;
+	 
+				scene.add(mesh);
 
-				var position = floorGeometry.attributes.position;
-
-				for ( var i = 0, l = position.count; i < l; i ++ ) {
-
-					vertex.fromBufferAttribute( position, i );
-
-					vertex.x += Math.random() * 20 - 10;
-					vertex.y += Math.random() * 2;
-					vertex.z += Math.random() * 20 - 10;
-
-					position.setXYZ( i, vertex.x, vertex.y, vertex.z );
-
-				}
-
-				floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
-
-				position = floorGeometry.attributes.position;
-				var colors = [];
-
-				for ( var i = 0, l = position.count; i < l; i ++ ) {
-
-					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-					colors.push( color.r, color.g, color.b );
-
-				}
-
-				floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-
-				var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
-
-				var floor = new THREE.Mesh( floorGeometry, floorMaterial );
-				scene.add( floor );
-
-				// objects
-
-				/*var boxGeometry = new THREE.BoxBufferGeometry( 20,40, 20 );
-				boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
-
-				position = boxGeometry.attributes.position;*/
-
-				//boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-				function randomInRange(from, to) {
-					var x = Math.random() * (to - from);
-					return x + from;
-				};
-
-				for ( var i = 0; i < 1000; i ++ ) {
 				
-					var boxGeometry = new THREE.BoxBufferGeometry( 20,randomInRange(50,100), 20 );
-					boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
-	
-					position = boxGeometry.attributes.position;
-
-					var boxMaterial = new THREE.MeshPhongMaterial( {color:Math.random() * 0xffffff} );
-					
-
-					var box = new THREE.Mesh(boxGeometry , boxMaterial );
-					box.position.x =randomInRange(-1000,1000);
-					box.position.y = 0;
-					box.position.z = randomInRange(-1000,1000);
-
-					scene.add( box );
-					objects.push( box );
-
-				}
+				for(let i = 1; i <= 150; i++)
+					createCube();
+    
+				objects.forEach((cube) => scene.add(cube));
 
 
 
@@ -337,6 +250,24 @@
 
 				camera.position.addScaledVector( vec, distancia );
 			}
+			
+			function randomInRange(from, to) {
+				var x = Math.random() * (to - from);
+				return x + from;
+			};
+			
+			function createCube() {
+				var w = randomInRange(20, 500);
+				var h = randomInRange(80, 1000);
+				var d = w;
+				var geometry = new THREE.BoxGeometry(w, h, d);
+				var material = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
+				var cube = new THREE.Mesh( geometry, material );
+				cube.position.x = randomInRange(-2500, 2500);
+				cube.position.z = randomInRange(-2500, 2500);
+				cube.position.y = h/2;
+				objects.push(cube);
+			};
 			
 			function DetectObstaculo(camera){
 					var vec = new THREE.Vector3;
