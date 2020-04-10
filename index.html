@@ -6,18 +6,24 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<style>
-			
-			
 			b {
 				color: black
 			}
 		</style>
 	</head>
 	<body>
-		<div id="example"></div>
+		<div id='container'></div>
 		
-		<div id="info"> <b>Controles</b> <br/>
-		<b>WASD o flechas->mover, </b><b>En ordenador(click)->vista, </b><b>En smartphone(orientación)->vista</b> </div>
+		<div id="blocker"> 
+				
+				<div id="instructions">
+					<span style="font-size:36px">Click to play</span>
+					<br /><br />
+					Move: WASD<br/>
+					Look: MOUSE or Device Orientation
+				</div>
+		</div>
+		
 			
 		<script type="module">
 
@@ -56,8 +62,17 @@
 			var clock = new THREE.Clock();
 			
 			var vec = new THREE.Vector3();
-			
 			var vecPrueba = new THREE.Vector3();
+			
+			var UNITWIDTH = 45;                 // Width of a cubes in the maze
+			var UNITHEIGHT = 45;                // Height of the cubes in the maze
+			
+			var totalCubesWide;
+			var collidableObjects = []; // An array of collidable objects used later
+			
+			var mapSize,listener,sound,mesh;
+			
+			
 			
 			
 
@@ -71,18 +86,19 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				//document.body.appendChild( renderer.domElement );
 				element = renderer.domElement;
-				container = document.getElementById('example');
+				container = document.getElementById('container');
 				container.appendChild(element);
 				
 				
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.y = 10;
 				
-				
+				listener = new THREE.AudioListener();
+				camera.add(listener);
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xffffff );
-				scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+				//scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 				
 				
 
@@ -107,6 +123,8 @@
 
 					document.addEventListener( 'click', function () {
 						fullscreen();
+						instructions.style.display = 'none';
+						blocker.style.display = 'none';
 
 					}, false );
 					
@@ -120,6 +138,19 @@
 						controls.lock();
 
 					}, false );
+					
+					controls.addEventListener( 'lock', function () {
+
+						instructions.style.display = 'none';
+						blocker.style.display = 'none';
+
+					} );
+					controls.addEventListener( 'unlock', function () {
+
+						blocker.style.display = 'block';
+						instructions.style.display = '';
+
+					} );
 					
 					scene.add( controls.getObject() );
 				}
@@ -186,25 +217,32 @@
 				document.addEventListener( 'keyup', onKeyUp, false );
 
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 10 );
-				 
-				// floor
-
-				var material = new THREE.MeshPhongMaterial({
-					color: 0xB8B9B9,
-				});
-				var geometry = new THREE.PlaneGeometry(5000, 5000);
-
-				var mesh = new THREE.Mesh(geometry, material);
-				mesh.rotation.x = -Math.PI / 2;
-	 
-				scene.add(mesh);
-
 				
-				for(let i = 1; i <= 150; i++)
-					createCube();
-    
-				objects.forEach((cube) => scene.add(cube));
+				sound = new THREE.PositionalAudio( listener );
 
+				// load a sound and set it as the PositionalAudio object's buffer
+				var audioLoader = new THREE.AudioLoader();
+				audioLoader.load( 'examples/sounds/376737_Skullbeatz___Bad_Cat_Maste.ogg', function( buffer ) {
+					sound.setBuffer( buffer );
+					sound.setRefDistance( 5);
+					sound.setRolloffFactor ( 0.5 );
+					sound.play();
+				});
+
+				// create an object for the sound to play from
+				var sphere = new THREE.SphereBufferGeometry( 20, 32, 16 );
+				var material = new THREE.MeshPhongMaterial( { color: 0xff2200 } );
+				mesh = new THREE.Mesh( sphere, material );
+				scene.add( mesh );
+				mesh.add(sound);
+				 
+				
+				// Add the walls(cubes) of the maze
+				createMazeCubes();
+				// Add ground plane
+				createGround();
+				// Add perimeter walls that surround the maze
+				createPerimWalls();
 
 
 				window.addEventListener( 'resize', onWindowResize, false );
@@ -316,11 +354,124 @@
 						moveRight = false;
 			}
 			
+			function createMazeCubes() {
+				// Maze wall mapping, assuming even square
+				// 1's are cubes, 0's are empty space
+				var map = [
+				[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, ],
+				[0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, ],
+				[0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, ],
+				[0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, ],
+				[1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, ],
+				[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ],
+				[0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, ],
+				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
+				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
+				];
+
+				// wall details
+				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
+				var cubeMat = new THREE.MeshPhongMaterial({
+								color: 0x81cfe0,
+							});
+
+				// Keep cubes within boundry walls
+				var widthOffset = UNITWIDTH / 2;
+				// Put the bottom of the cube at y = 0
+				var heightOffset = UNITHEIGHT / 2;
+	
+				// See how wide the map is by seeing how long the first array is
+				totalCubesWide = map[0].length;
+
+				// Place walls where 1`s are
+				for (var i = 0; i < totalCubesWide; i++) {
+					for (var j = 0; j < map[i].length; j++) {
+						// If a 1 is found, add a cube at the corresponding position
+						if (map[i][j]) {
+							// Make the cube
+							var cube = new THREE.Mesh(cubeGeo, cubeMat);
+							// Set the cube position
+							cube.position.z = (i - totalCubesWide / 2) * UNITWIDTH + widthOffset;
+							cube.position.y = heightOffset;
+							cube.position.x = (j - totalCubesWide / 2) * UNITWIDTH + widthOffset;
+							// Add the cube
+							scene.add(cube);
+							// Used later for collision detection
+							collidableObjects.push(cube);
+							objects.push(cube);
+						}
+					}
+				}
+				// The size of the maze will be how many cubes wide the array is * the width of a cube
+				
+				mapSize = totalCubesWide * UNITWIDTH;
+				var positionx = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
+				var positionz = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
+				
+				var finalz = (15-totalCubesWide/2)*UNITWIDTH+widthOffset;
+				var finalx = (19-totalCubesWide/2)*UNITWIDTH+widthOffset;
+				
+				mesh.position.set(finalx,20,finalz);
+				camera.position.set(positionx,20,positionz);
+			}
+			function createGround() {
+				// Create ground geometry and material
+				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
+				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide});
+
+				var ground = new THREE.Mesh(groundGeo, groundMat);
+				ground.position.set(0, 1, 0);
+				// Rotate the place to ground level
+				ground.rotation.x = Math.PI/2
+				scene.add(ground);
+			}
+			function createPerimWalls() {
+				var halfMap = mapSize / 2;  // Half the size of the map
+				var sign = 1;               // Used to make an amount positive or negative
+
+				// Loop through twice, making two perimeter walls at a time
+				for (var i = 0; i < 2; i++) {
+					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);
+					// Make the material double sided
+					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide });
+					// Make two walls
+					var perimWallLR = new THREE.Mesh(perimGeo, perimMat);
+					var perimWallFB = new THREE.Mesh(perimGeo, perimMat);
+
+					// Create left/right wall
+					perimWallLR.position.set(halfMap * sign, UNITHEIGHT / 2, 0);
+					perimWallLR.rotation.y = Math.PI/2;
+					scene.add(perimWallLR);
+					// Used later for collision detection
+					collidableObjects.push(perimWallLR);
+					objects.push(perimWallLR);
+					// Create front/back wall
+					perimWallFB.position.set(0, UNITHEIGHT / 2, halfMap * sign);
+					scene.add(perimWallFB);
+
+					// Used later for collision detection
+					collidableObjects.push(perimWallFB);
+					objects.push(perimWallFB);
+
+					sign = -1; // Swap to negative value
+				}
+			}
 			function animate() {
 
 				requestAnimationFrame( animate );
 						
-					
+					//console.log(camera.position);
 					
 					DetectObstaculo(camera);
 
