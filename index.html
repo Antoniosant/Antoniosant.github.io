@@ -231,30 +231,20 @@
 					sound.setBuffer( buffer );
 					sound.setRefDistance( 5);
 					sound.setRolloffFactor ( 0.5 );
+					sound.setLoop( true );
 					sound.play();
 				});
 
 				// create an object for the sound to play from
-				var sphere = new THREE.SphereBufferGeometry( 20, 32, 16 );
+				var sphere = new THREE.SphereBufferGeometry( 10,10,10 );
 				var material = new THREE.MeshPhongMaterial( { color: 0xff2200 } );
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
 				
-				var cubeGeo = new THREE.BoxGeometry(10, 10, 10);
-				var cubeMat = new THREE.MeshPhongMaterial({
-								color: 0x81cfe0,
-							});
-				
-				cubito = new THREE.Mesh(cubeGeo, cubeMat);
-			
-				//cubito.visible = false;
-				scene.add(cubito);
-				
-				cosas.push(cubito);
 				
 				// Add the walls(cubes) of the maze
-				createMazeCubes();
+				createMazeCubes2();
 				// Add ground plane
 				createGround();
 				// Add perimeter walls that surround the maze
@@ -391,51 +381,8 @@
 				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
 				];
 				
-				var map2 = [
-				[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, ],
-				[0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-				[0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
-				[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-				[1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, ],
-				[0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, ],
-				[0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, ],
-				[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, ],
-				[0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, ],
-				[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, ],
-				[1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, ],
-				[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ],
-				[0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, ],
-				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, ],
-				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, ],
-				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
-				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
-				];
 
-				var map3 = [
-				[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, ],
-				[0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-				[0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
-				[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
-				[1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, ],
-				[0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
-				[0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, ],
-				[0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, ],
-				[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, ],
-				[0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, ],
-				[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, ],
-				[1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, ],
-				[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ],
-				[0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, ],
-				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, ],
-				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, ],
-				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
-				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
-				];
+				
 				// wall details
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
@@ -525,6 +472,74 @@
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
 			}
+			
+			function createMazeCubes2() {
+				// Maze wall mapping, assuming even square
+				// 1's are cubes, 0's are empty space
+				var map = [
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 0,  ],
+				[0, 0, 0, 1, 1, 0, 1, 1, 1, 0,  ],
+				[1, 1, 1, 0, 0, 0, 1, 1, 0, 0,  ],
+				[0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  ],
+				[0, 1, 1, 1, 0, 0, 0, 0, 0, 0,  ],
+				[0, 1, 0, 0, 0, 1, 1, 1, 1, 1,  ],
+				[0, 0, 0, 1, 1, 1, 0, 0, 0, 0,  ],
+				[0, 0, 0, 1, 1, 1, 1, 1, 1, 0,  ],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  ],
+				[1, 1, 1, 1, 1, 1, 1, 1, 0, 0,  ],
+				];
+				
+
+				
+				// wall details
+				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
+				var cubeMat = new THREE.MeshPhongMaterial({
+								color: 0x81cfe0,
+							});
+
+				// Keep cubes within boundry walls
+				var widthOffset = UNITWIDTH / 2;
+				// Put the bottom of the cube at y = 0
+				var heightOffset = UNITHEIGHT / 2;
+	
+				// See how wide the map is by seeing how long the first array is
+				totalCubesWide = map[0].length;
+
+				// Place walls where 1`s are
+				for (var i = 0; i < totalCubesWide; i++) {
+					for (var j = 0; j < map[i].length; j++) {
+						// If a 1 is found, add a cube at the corresponding position
+						if (map[i][j]) {
+							// Make the cube
+							var cube = new THREE.Mesh(cubeGeo, cubeMat);
+							// Set the cube position
+							cube.position.z = (i - totalCubesWide / 2) * UNITWIDTH + widthOffset;
+							cube.position.y = heightOffset;
+							cube.position.x = (j - totalCubesWide / 2) * UNITWIDTH + widthOffset;
+							// Add the cube
+							scene.add(cube);
+							// Used later for collision detection
+							collidableObjects.push(cube);
+							objects.push(cube);
+						}
+					}
+				}
+				// The size of the maze will be how many cubes wide the array is * the width of a cube
+				
+				mapSize = totalCubesWide * UNITWIDTH;
+				var positionx = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
+				var positionz = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
+				
+				var finalz = (4-totalCubesWide/2)*UNITWIDTH+widthOffset;
+				var finalx = (9-totalCubesWide/2)*UNITWIDTH+widthOffset;
+				
+				mesh.position.set(finalx,20,finalz);
+				camera.position.set(positionx,20,positionz);
+				
+			}
+			
+			
+			
 			function createGround() {
 				// Create ground geometry and material
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
