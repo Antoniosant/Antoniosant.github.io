@@ -244,7 +244,7 @@
 				
 				
 				// Add the walls(cubes) of the maze
-				createMazeCubes2();
+				createMazeCubes();
 				// Add ground plane
 				createGround();
 				// Add perimeter walls that surround the maze
@@ -355,7 +355,7 @@
 						moveRight = false;
 			}
 			
-			function createMazeCubes() {
+			function createMazeCubes2() {
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -471,9 +471,11 @@
 				
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
+				
+				
 			}
 			
-			function createMazeCubes2() {
+			function createMazeCubes() {
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -639,6 +641,20 @@
 										
 					
 					//loader.rotation.y += 0.05;
+					
+					//-------------------------
+					//Cambio al nivel 2 
+					//-------------------------
+					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
+						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10))
+					{
+						// Add the walls(cubes) of the maze
+						createMazeCubes2();
+						// Add ground plane
+						createGround();
+						// Add perimeter walls that surround the maze
+						createPerimWalls();
+					}
 					
 					if(is_mobile){
 						effect.render(scene, camera);
