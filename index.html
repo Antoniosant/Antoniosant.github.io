@@ -31,7 +31,9 @@
 
 			import { PointerLockControls } from '/examples/jsm/controls/PointerLockControls.js';
 			
-			import  FirstPersonVRControls  from '/examples/jsm/controls/FirstPersonVRControls.js';
+			import { DDSLoader } from '/examples/jsm/loaders/DDSLoader.js';
+			import { MTLLoader } from '/examples/jsm/loaders/MTLLoader.js';
+			import { OBJLoader } from '/examples/jsm/loaders/OBJLoader.js';
 			
 			import { DeviceOrientationControls } from '/examples/jsm/controls/DeviceOrientationControls.js';
   
@@ -72,14 +74,16 @@
 			
 			var mapSize,listener,sound,mesh;
 			
-			
-			
+			var loader,cubito;
+		
+			var cosas = [];
 			
 
 			init();
 			animate();
 
 			function init() {
+				
 				
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -95,6 +99,7 @@
 				
 				listener = new THREE.AudioListener();
 				camera.add(listener);
+				
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xffffff );
@@ -235,7 +240,18 @@
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
-				 
+				
+				var cubeGeo = new THREE.BoxGeometry(10, 10, 10);
+				var cubeMat = new THREE.MeshPhongMaterial({
+								color: 0x81cfe0,
+							});
+				
+				cubito = new THREE.Mesh(cubeGeo, cubeMat);
+			
+				//cubito.visible = false;
+				scene.add(cubito);
+				
+				cosas.push(cubito);
 				
 				// Add the walls(cubes) of the maze
 				createMazeCubes();
@@ -318,37 +334,32 @@
 					raycaster.ray.origin.copy( camera.position );
 					raycaster.ray.direction.copy(vec);
 					
-					//raycaster.ray.origin.z += 2;
-					
 					intersections = raycaster.intersectObjects( objects );
 					if(intersections.length >0)
 						moveForward = false;
 						
+						
 					aux = vec.negate();
 					raycaster.ray.direction.copy(aux);
-					
-					//raycaster.ray.origin.z -= 2;
-					
+		
 					intersections = raycaster.intersectObjects( objects );
 					if(intersections.length >0)
 						moveBackward = false;
 						
+					
 					aux = vec.normalize();
 					aux = vec.applyAxisAngle(axis,-Math.PI/2);
 					
 					raycaster.ray.direction.copy(aux);
-					
-					//raycaster.ray.origin.x -= 2;
 					intersections = raycaster.intersectObjects( objects );
 					if(intersections.length >0)
 						moveLeft = false;
 					
+					
 					aux = vec.normalize();
 					aux = vec.applyAxisAngle(axis,Math.PI/2);
 					
-					raycaster.ray.direction.copy(aux);
-					
-					//raycaster.ray.origin.x += 2;
+					raycaster.ray.direction.copy(aux);				
 					intersections = raycaster.intersectObjects( objects );
 					if(intersections.length >0)
 						moveRight = false;
@@ -379,7 +390,52 @@
 				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
 				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
 				];
+				
+				var map2 = [
+				[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, ],
+				[0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, ],
+				[0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, ],
+				[0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, ],
+				[1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, ],
+				[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ],
+				[0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, ],
+				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
+				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
+				];
 
+				var map3 = [
+				[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, ],
+				[0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, ],
+				[1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, ],
+				[0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, ],
+				[0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, ],
+				[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, ],
+				[0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, ],
+				[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, ],
+				[1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, ],
+				[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, ],
+				[0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, ],
+				[0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, ],
+				[1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, ],
+				[0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, ]
+				];
 				// wall details
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
@@ -413,6 +469,50 @@
 						}
 					}
 				}
+				//-----------------------------------------------------
+				//Codigo crear pista
+				//-----------------------------------------------------
+				/*
+				var manager = new THREE.LoadingManager();
+				manager.addHandler( /\.dds$/i, new DDSLoader() );
+				
+				new MTLLoader( manager )
+					.setPath( 'examples/models/obj/key/' )
+					.load( 'old_key.mtl', function ( materials ) {
+
+						materials.preload();
+
+						 new OBJLoader( manager )
+							.setMaterials( materials )
+							.setPath( 'examples/models/obj/key/' )
+							.load( 'old_key.obj', function ( object ) {
+								
+								object.scale.x = 0.1;
+								object.scale.y = 0.1;
+								object.scale.z = 0.1;
+								object.position.z = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
+								object.position.x = (14- totalCubesWide / 2) * UNITWIDTH + widthOffset;
+								object.position.y = 10;
+								loader = object;
+								
+								scene.add( loader);
+							
+
+							}, // called when loading is in progresses
+							function ( xhr ) {
+
+							console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+							}, 
+							function ( error ) {
+
+								console.log( 'An error happened' );
+
+							} );
+
+					} );*/
+				
+				
 				// The size of the maze will be how many cubes wide the array is * the width of a cube
 				
 				mapSize = totalCubesWide * UNITWIDTH;
@@ -436,6 +536,7 @@
 				ground.rotation.x = Math.PI/2
 				scene.add(ground);
 			}
+			
 			function createPerimWalls() {
 				var halfMap = mapSize / 2;  // Half the size of the map
 				var sign = 1;               // Used to make an amount positive or negative
@@ -467,6 +568,25 @@
 					sign = -1; // Swap to negative value
 				}
 			}
+			
+			function createtrick(camera){
+				var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 5 );
+				var vec = new THREE.Vector3;
+				var intersections;
+				
+				camera.getWorldDirection(vec);
+					
+				raycaster.ray.origin.copy( camera.position );
+				raycaster.ray.direction.copy(vec);
+					
+				//raycaster.ray.origin.z += 2;
+				cubito.position.set(loader.position.x,loader.position.y ,loader.position.z);
+					
+				intersections = raycaster.intersectObject(cubito);
+				if(intersections.length >0)
+					console.log('holaa');
+			}
+			
 			function animate() {
 
 				requestAnimationFrame( animate );
@@ -474,6 +594,7 @@
 					//console.log(camera.position);
 					
 					DetectObstaculo(camera);
+					
 
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;
@@ -498,8 +619,11 @@
 						controls.moveForward( - velocity.z * delta );
 					}
 					
-
+					
 					prevTime = time;
+										
+					
+					//loader.rotation.y += 0.05;
 					
 					if(is_mobile){
 						effect.render(scene, camera);
