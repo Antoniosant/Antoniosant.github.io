@@ -76,7 +76,7 @@ canvas {
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
+	z-index: 100; /* TODO Solve this in HTML */
 }
 
 

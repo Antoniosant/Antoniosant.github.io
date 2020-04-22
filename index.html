@@ -12,7 +12,11 @@
 		</style>
 	</head>
 	<body>
-		<div id='container'></div>
+		<div id='container'>
+				<div id="hms"></div>
+				
+				<div id= "puntuacion"></div>
+		</div>
 		
 		<div id="blocker"> 
 				
@@ -24,7 +28,6 @@
 				</div>
 		</div>
 		
-		<div id="hms"></div>
 		
 			
 		<script type="module">
@@ -156,6 +159,7 @@
 						
 						controls.lock();
 						cronometrar();
+						fullscreen();
 
 					}, false );
 					
@@ -169,6 +173,7 @@
 
 						blocker.style.display = 'block';
 						instructions.style.display = '';
+						parar();
 
 					} );
 					
@@ -650,6 +655,17 @@
 				document.getElementById("hms").innerHTML="00:00:00";
 				h=0;m=0;s=0;
 				
+			}
+			
+			function CalculoPuntuacion(){
+				
+				
+				switch(level){
+					case 1: 
+						break;
+					case 2:
+						break;
+				}
 			}
 			
 			function animate() {
