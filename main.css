@@ -69,7 +69,7 @@ canvas {
 	padding: 15px;
 	font-size: 30px;
 	box-sizing: border-box;
-	text-align: center;
+	text-align: right;
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	color: #000000;
