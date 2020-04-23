@@ -181,16 +181,8 @@
 						cronometrar();
 						instructions.style.display = 'none';
 						blocker.style.display = 'none';
-						document.removeEventListener( 'click', click1, false );
-						document.addEventListener( 'click', click2, false );
 
 				} 
-				var click2 = function () {
-
-						parar();
-						document.addEventListener( 'click', click1, false );
-
-				}
 				
 				var onKeyDown = function ( event ) {
 
