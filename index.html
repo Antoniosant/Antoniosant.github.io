@@ -143,8 +143,8 @@
 					
 					//effect = new StereoEffect(renderer);
 			
-					controls = new DeviceOrientationControls(camera);
-					controls.connect();
+					//controls = new DeviceOrientationControls(camera);
+					//controls.connect();
 					
 					
 
@@ -736,8 +736,8 @@
 					
 					
 					if(is_mobile){
-						effect.render(scene, camera);
-						controls.update();
+						renderer.render(scene, camera);
+						//controls.update();
 					} else {
 						renderer.render(scene, camera);
 					}
