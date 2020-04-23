@@ -145,14 +145,7 @@
 					
 					
 
-					document.addEventListener( 'click', function () {
-						fullscreen();
-						cronometrar();
-						instructions.style.display = 'none';
-						blocker.style.display = 'none';
-
-					}, false );
-					
+					document.addEventListener( 'click', click1, false );
 					
 					
 				} else {
@@ -181,6 +174,23 @@
 					} );
 					
 					scene.add( controls.getObject() );
+				}
+				
+				var click1 = function () {
+						fullscreen();
+						cronometrar();
+						instructions.style.display = 'none';
+						blocker.style.display = 'none';
+						document.addEventListener( 'click', click2, false );
+
+				} 
+				var click2 = function () {
+						fullscreen();
+						cronometrar();
+						instructions.style.display = 'none';
+						blocker.style.display = 'none';
+						document.addEventListener( 'click', click1, false );
+
 				}
 				
 				var onKeyDown = function ( event ) {
