@@ -12,6 +12,7 @@
 		</style>
 	</head>
 	<body>
+		
 		<div id='container'>
 				<div id="hms"></div>
 				
@@ -43,6 +44,8 @@
 			import { DeviceOrientationControls } from '/examples/jsm/controls/DeviceOrientationControls.js';
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
+			
+			import { VRButton } from '/examples/jsm/webxr/VRButton.js';
 
 			var camera, scene, renderer, controls;
 
@@ -107,6 +110,8 @@
 				element = renderer.domElement;
 				container = document.getElementById('container');
 				container.appendChild(element);
+				document.body.appendChild( VRButton.createButton( renderer ) );
+				renderer.xr.enabled = true;
 				
 				document.getElementById("hms").innerHTML="00:00:00";
 				
@@ -143,12 +148,12 @@
 					
 					
 
-					document.addEventListener( 'click', function () {
+					/*document.addEventListener( 'click', function () {
 						fullscreen();
 						instructions.style.display = 'none';
 						blocker.style.display = 'none';
 
-					}, false );
+					}, false );*/
 					
 					
 					
