@@ -13,13 +13,14 @@
 	</head>
 	<body>
 		
+	
 		<div id='container'>
 				<div id="hms"></div>
 				
 				<div id= "puntuacion"></div>
 		</div>
 		
-		<!--<div id="blocker"> 
+		<div id="blocker"> 
 				
 				<div id="instructions">
 					<span style="font-size:36px">Click to play</span>
@@ -27,7 +28,7 @@
 					Move: WASD<br/>
 					Look: MOUSE or Device Orientation
 				</div>
-		</div> -->
+		</div>
 		
 		
 			
@@ -44,8 +45,6 @@
 			import { DeviceOrientationControls } from '/examples/jsm/controls/DeviceOrientationControls.js';
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
-			
-			import { VRButton } from '/examples/jsm/webxr/VRButton.js';
 
 			var camera, scene, renderer, controls;
 
@@ -110,8 +109,6 @@
 				element = renderer.domElement;
 				container = document.getElementById('container');
 				container.appendChild(element);
-				document.body.appendChild( VRButton.createButton( renderer ) );
-				renderer.xr.enabled = true;
 				
 				document.getElementById("hms").innerHTML="00:00:00";
 				
@@ -141,19 +138,19 @@
 				if(is_mobile){
 					scene.add(camera);
 					
-					//effect = new StereoEffect(renderer);
+					effect = new StereoEffect(renderer);
 			
-					//controls = new DeviceOrientationControls(camera);
-					//controls.connect();
+					controls = new DeviceOrientationControls(camera);
+					controls.connect();
 					
 					
 
-					/*document.addEventListener( 'click', function () {
+					document.addEventListener( 'click', function () {
 						fullscreen();
 						instructions.style.display = 'none';
 						blocker.style.display = 'none';
 
-					}, false );*/
+					}, false );
 					
 					
 					
@@ -736,8 +733,8 @@
 					
 					
 					if(is_mobile){
-						renderer.render(scene, camera);
-						//controls.update();
+						effect.render(scene, camera);
+						controls.update();
 					} else {
 						renderer.render(scene, camera);
 					}
