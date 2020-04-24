@@ -88,6 +88,7 @@
 			var cosas = [];
 			
 			var level = 1; //indicador de nivel 
+			var marcador = 0; //Puntuacion
 			
 			var h = 0;
 			var m = 0;
@@ -111,7 +112,7 @@
 				container.appendChild(element);
 				
 				document.getElementById("hms").innerHTML="00:00:00";
-				
+				document.getElementById("puntuacion").innerHTML="Puntuación: " + marcador;
 				
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.y = 10;
@@ -497,7 +498,7 @@
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
 				
-				Reloj.start();
+				
 			}
 			
 			function createMazeCubes() {
@@ -666,8 +667,24 @@
 				
 				switch(level){
 					case 1: 
+						if(s <= 30){
+							marcador += 100; 
+						} else if(s>30 && s < 59){
+							marcador += 50; 
+						} else if(m > 0){
+							marcador += 25; 
+						}
+						document.getElementById("puntuacion").innerHTML = "Puntuacion: " + marcador; 
 						break;
 					case 2:
+						if(s< 59){
+							marcador += 100; 
+						} else if(m>1 && m < 3){
+							marcador += 50; 
+						} else if(m > 3){
+							marcador += 25; 
+						}
+						document.getElementById("puntuacion").innerHTML = "Puntuacion: " + marcador; 
 						break;
 				}
 			}
@@ -716,6 +733,12 @@
 					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
 						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
 					{
+						parar();
+						CalculoPuntuacion();
+						reiniciar();
+						
+						//Necesario borrar todo el mapa 
+						
 						// Add the walls(cubes) of the maze
 						createMazeCubes2();
 						// Add ground plane
@@ -724,12 +747,15 @@
 						createPerimWalls();
 						
 						level = 2;
-						Reloj.stop();
+						cronometrar();
+						
 					}
 					
 					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
 						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
 					{
+						parar();
+						CalculoPuntuacion();
 							//fin
 					}
 					

@@ -78,6 +78,22 @@ canvas {
 	pointer-events: none;
 	z-index: 100; /* TODO Solve this in HTML */
 }
+#puntuacion {
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	padding: 15px;
+	font-size: 30px;
+	box-sizing: border-box;
+	text-align: left;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	color: #000000;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	z-index: 100; /* TODO Solve this in HTML */
+}
 
 
 
