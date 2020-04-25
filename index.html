@@ -321,23 +321,6 @@
 				camera.position.addScaledVector( vec, distancia );
 			}
 			
-			/*function randomInRange(from, to) {
-				var x = Math.random() * (to - from);
-				return x + from;
-			};
-			
-			function createCube() {
-				var w = randomInRange(20, 500);
-				var h = randomInRange(80, 1000);
-				var d = w;
-				var geometry = new THREE.BoxGeometry(w, h, d);
-				var material = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
-				var cube = new THREE.Mesh( geometry, material );
-				cube.position.x = randomInRange(-2500, 2500);
-				cube.position.z = randomInRange(-2500, 2500);
-				cube.position.y = h/2;
-				objects.push(cube);
-			};*/
 			
 			function DetectObstaculo(camera){ //Funcion para detectar objetos delante, atras, a izquerda y derecha del usuario.
 					var vec = new THREE.Vector3;
