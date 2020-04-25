@@ -321,7 +321,7 @@
 				camera.position.addScaledVector( vec, distancia );
 			}
 			
-			function randomInRange(from, to) {
+			/*function randomInRange(from, to) {
 				var x = Math.random() * (to - from);
 				return x + from;
 			};
@@ -337,9 +337,9 @@
 				cube.position.z = randomInRange(-2500, 2500);
 				cube.position.y = h/2;
 				objects.push(cube);
-			};
+			};*/
 			
-			function DetectObstaculo(camera){
+			function DetectObstaculo(camera){ //Funcion para detectar objetos delante, atras, a izquerda y derecha del usuario.
 					var vec = new THREE.Vector3;
 					var aux = new THREE.Vector3;
 					var axis = new THREE.Vector3(0,1,0);
@@ -380,8 +380,10 @@
 					if(intersections.length >0)
 						moveRight = false;
 			}
-			
-			function createMazeCubes2() {
+			//----------------------------------------
+			//Codigo Entorno
+			//----------------------------------------
+			function createMazeCubes2() {                         //Funcion que crea el segundo mapa
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -501,7 +503,7 @@
 				
 			}
 			
-			function createMazeCubes() {
+			function createMazeCubes() { 							//Funcion que crea el primer mapa 
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -568,7 +570,7 @@
 			
 			
 			
-			function createGround() {
+			function createGround() { 					//Funcion que crea el suelo segun las dimensiones del mapa
 				// Create ground geometry and material
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
 				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide});
@@ -580,7 +582,7 @@
 				scene.add(ground);
 			}
 			
-			function createPerimWalls() {
+			function createPerimWalls() { 				//Funcion que crea los muros exteriores
 				var halfMap = mapSize / 2;  // Half the size of the map
 				var sign = 1;               // Used to make an amount positive or negative
 
@@ -612,7 +614,19 @@
 				}
 			}
 			
-			function createtrick(camera){
+			function BorrarEscena(scene) { 					//funcion que borra todos los objetos de una escena
+				
+				var obj;
+				for( var i = scene.children.length - 1; i >= 0; i--){
+					obj = scene.children[i];
+					if(obj instanceof THREE.Mesh){
+						scene.remove(obj);
+					}	
+				}
+				objects= [];
+			}
+			
+			function createtrick(camera){   
 				var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 5 );
 				var vec = new THREE.Vector3;
 				var intersections;
@@ -661,7 +675,9 @@
 				h=0;m=0;s=0;
 				
 			}
-			
+			//-------------------------------
+			//codigo Puntuacion
+			//------------------------------
 			function CalculoPuntuacion(){
 				
 				
@@ -689,6 +705,9 @@
 				}
 			}
 			
+			//---------------------------------------
+			// Loop del programa
+			//---------------------------------------
 			function animate() {
 
 				requestAnimationFrame( animate );
@@ -737,8 +756,8 @@
 						CalculoPuntuacion();
 						reiniciar();
 						
-						//Necesario borrar todo el mapa 
-						
+						 
+						BorrarEscena(scene);
 						// Add the walls(cubes) of the maze
 						createMazeCubes2();
 						// Add ground plane
@@ -756,7 +775,7 @@
 					{
 						parar();
 						CalculoPuntuacion();
-							//fin
+						//Mensaje GAME OVER 
 					}
 					
 					
