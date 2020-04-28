@@ -30,6 +30,14 @@
 				</div>
 		</div>
 		
+		<div id ='final'>
+			
+			<div id="game">
+					<span style="font-size:36px">YOU WIN!!</span>
+		
+				</div>
+		</div>
+		
 		
 			
 		<script type="module">
@@ -45,6 +53,7 @@
 			import { DeviceOrientationControls } from '/examples/jsm/controls/DeviceOrientationControls.js';
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
+			
 
 			var camera, scene, renderer, controls;
 
@@ -122,9 +131,8 @@
 				
 
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xffffff );
+				scene.background = new THREE.Color( 0xf0f0ff);
 				//scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
-				
 				
 
 				var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
@@ -162,7 +170,7 @@
 						
 						controls.lock();
 						cronometrar();
-						fullscreen();
+						
 
 					}, false );
 					
@@ -261,8 +269,9 @@
 				});
 
 				// create an object for the sound to play from
+				var texture = new THREE.TextureLoader().load( '/examples/textures/41PcmwPJfdL._AC_SX425_.jpg' );
 				var sphere = new THREE.SphereBufferGeometry( 10,10,10 );
-				var material = new THREE.MeshPhongMaterial( { color: 0xff2200 } );
+				var material = new THREE.MeshPhongMaterial( { map:texture} );
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
@@ -275,7 +284,8 @@
 				// Add perimeter walls that surround the maze
 				createPerimWalls();
 				
-				
+				final.style.display = 'none';
+				game.style.display = 'none';
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -395,9 +405,11 @@
 
 				
 				// wall details
+				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
-								color: 0x81cfe0,
+
+								map: texture,
 							});
 
 				// Keep cubes within boundry walls
@@ -480,6 +492,8 @@
 				var finalz = (15-totalCubesWide/2)*UNITWIDTH+widthOffset;
 				var finalx = (19-totalCubesWide/2)*UNITWIDTH+widthOffset;
 				
+				scene.add(mesh);
+				
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
 				
@@ -505,9 +519,12 @@
 
 				
 				// wall details
+				
+				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
-								color: 0x81cfe0,
+
+								map: texture,
 							});
 
 				// Keep cubes within boundry walls
@@ -573,6 +590,8 @@
 				for (var i = 0; i < 2; i++) {
 					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);
 					// Make the material double sided
+					
+					
 					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide });
 					// Make two walls
 					var perimWallLR = new THREE.Mesh(perimGeo, perimMat);
@@ -759,6 +778,8 @@
 						parar();
 						CalculoPuntuacion();
 						//Mensaje GAME OVER 
+						
+
 					}
 					
 					
