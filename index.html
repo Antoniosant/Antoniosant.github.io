@@ -572,8 +572,13 @@
 			
 			function createGround() { 					//Funcion que crea el suelo segun las dimensiones del mapa
 				// Create ground geometry and material
+				
+				var texture = new THREE.TextureLoader().load( '/examples/textures/tierra.jpg' );
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
-				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide});
+				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide,map: texture});
+				
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set(8, 8);
 
 				var ground = new THREE.Mesh(groundGeo, groundMat);
 				ground.position.set(0, 1, 0);
