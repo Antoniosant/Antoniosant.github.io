@@ -586,13 +586,17 @@
 				var halfMap = mapSize / 2;  // Half the size of the map
 				var sign = 1;               // Used to make an amount positive or negative
 
+				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
+				
 				// Loop through twice, making two perimeter walls at a time
 				for (var i = 0; i < 2; i++) {
 					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);
 					// Make the material double sided
 					
 					
-					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide });
+					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide, map:texture});
+					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+					texture.repeat.set( 1, 1 );
 					// Make two walls
 					var perimWallLR = new THREE.Mesh(perimGeo, perimMat);
 					var perimWallFB = new THREE.Mesh(perimGeo, perimMat);
