@@ -99,11 +99,19 @@
 			var level = 1; //indicador de nivel 
 			var marcador = 0; //Puntuacion
 			
+			//Cronometro
 			var h = 0;
 			var m = 0;
 			var s = 0;
 			var id;
-		
+			
+			//Minotauro			
+			var mino;
+			var MINOSPEED = 4.0;
+
+			var minoVelocity = new THREE.Vector3();
+			var MINOCOLLISIONDISTANCE = 2;
+			
 			
 
 			init();
@@ -132,7 +140,7 @@
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xf0f0ff);
-				scene.fog = new THREE.Fog( 0xCECECE, 0, 200 );
+				//scene.fog = new THREE.Fog( 0xCECECE, 0, 200 );
 				
 
 				var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
@@ -265,7 +273,7 @@
 					sound.setRefDistance( 5);
 					sound.setRolloffFactor ( 0.5 );
 					sound.setLoop( true );
-					sound.play();
+					//sound.play();
 				});
 
 				// create an object for the sound to play from
@@ -286,6 +294,9 @@
 				
 				final.style.display = 'none';
 				game.style.display = 'none';
+				
+				crearMino();
+				
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -566,6 +577,8 @@
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
 				
+				
+				
 			}
 			
 			
@@ -716,6 +729,97 @@
 				}
 			}
 			
+			function crearMino(){
+				
+				var manager = new THREE.LoadingManager();
+				manager.addHandler( /\.dds$/i, new DDSLoader() );
+
+				// comment in the following line and import TGALoader if your asset uses TGA textures
+				// manager.addHandler( /\.tga$/i, new TGALoader() );
+
+				new MTLLoader( manager )
+					.setPath( 'examples/models/obj/Minos/' )
+					.load( 'Minos.mtl', function ( materials ) {
+
+						materials.preload();
+
+						new OBJLoader( manager )
+							.setMaterials( materials )
+							.setPath( 'examples/models/obj/Minos/' )
+							.load( 'Minos.obj', function ( object ) {
+
+								
+								object.position.x = 157;
+								object.position.z = -113;
+								object.position.y = -45;
+								object.name = "Mino";
+								
+								scene.add(object);
+        
+								// Store the dino
+								mino = scene.getObjectByName("Mino"); 
+								
+
+							},);
+
+					} );
+			}
+			function rayIntersect(ray, distance) {
+				var intersects = ray.intersectObjects(objects);
+				for (var i = 0; i < intersects.length; i++) {
+				// Check if there's a collision
+					if (intersects[i].distance < distance) {
+						return true;
+					}
+				}
+				return false;
+			}
+			function getRandomInt(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min)) + min;
+			}
+			function animateMino(delta) {
+				// Gradual slowdown
+				minoVelocity.x -= minoVelocity.x * 10.0 * delta;
+				minoVelocity.z -= minoVelocity.z * 10.0 * delta;
+
+
+				// If no collision, apply movement velocity
+				if (detectMinoCollision() == false) {
+					minoVelocity.z += MINOSPEED * delta;
+					// Move the dino
+					mino.translateZ(minoVelocity.z * delta);
+
+				} else {
+					// Collision. Adjust direction
+					var directionMultiples = [-1, 1, 2];
+					var randomIndex = getRandomInt(0, 2);
+					var randomDirection = (Math.PI/2) * directionMultiples[randomIndex];
+
+					minoVelocity.z += DINOSPEED * delta;
+					mino.rotation.y += randomDirection;
+				}
+			}
+			function detectMinoCollision() {
+				// Get the rotation matrix from dino
+				var matrix = new THREE.Matrix4();
+				matrix.extractRotation(mino.matrix);
+				// Create direction vector
+				var directionFront = new THREE.Vector3(0, 0, 1);
+
+				// Get the vectors coming from the front of the dino
+				directionFront.applyMatrix4(matrix);
+
+				// Create raycaster
+				var rayCasterF = new THREE.Raycaster(mino.position, directionFront);
+				// If we have a front collision, we have to adjust our direction so return true
+				if (rayIntersect(rayCasterF, MINOCOLLISIONDISTANCE))
+					return true;
+				else
+					return false;
+			}
+			
 			//---------------------------------------
 			// Loop del programa
 			//---------------------------------------
@@ -726,10 +830,12 @@
 					//console.log(camera.position);
 					
 					DetectObstaculo(camera);
-					
+				
 
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;
+					
+					
 
 					velocity.x -= velocity.x * 10.0 * delta;
 					velocity.z -= velocity.z * 10.0 * delta;
@@ -791,7 +897,7 @@
 
 					}
 					
-					
+					animateMino(delta);
 					if(is_mobile){
 						effect.render(scene, camera);
 						controls.update();
