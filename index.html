@@ -103,6 +103,11 @@
 			var minoVelocity = new THREE.Vector3();
 			var MINOCOLLISIONDISTANCE = 10;
 			
+			var movil;
+			var posicionorix;
+			var direccion = -1;
+			var trampa = false;
+			
 			
 
 			init();
@@ -517,8 +522,8 @@
 				[0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  ],
 				[0, 1, 1, 1, 0, 0, 0, 0, 0, 0,  ],
 				[0, 1, 0, 0, 0, 1, 1, 1, 1, 1,  ],
-				[0, 0, 0, 1, 1, 1, 0, 0, 0, 0,  ],
-				[0, 0, 0, 1, 1, 1, 1, 1, 1, 0,  ],
+				[0, 0, 0, 1, 1, 0, 0, 0, 0, 0,  ],
+				[0, 1, 1, 1, 1, 1, 1, 1, 1, 0,  ],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  ],
 				[1, 1, 1, 1, 1, 1, 1, 1, 0, 0,  ],
 				];
@@ -572,6 +577,9 @@
 				
 				mesh.position.set(finalx,20,finalz);
 				camera.position.set(positionx,20,positionz);
+				
+				movil = collidableObjects[21];
+				posicionorix = movil.position.x;
 				
 				
 				
@@ -831,6 +839,7 @@
 			}
 			*/
 			
+			
 			//---------------------------------------
 			// Loop del programa
 			//---------------------------------------
@@ -864,13 +873,32 @@
 				prevTime = time;
 					
 			}
+			
+			
+			function ActivarTrampa(){
+				//cubo 22
+				var posicionx = (2-5)*45+22;
+				var posicionz = (6-5)*45+22;
+				
+				if((camera.position.x <posicionx+45) && (camera.position.x > posicionx-45) &&
+					(camera.position.z < posicionz+45) && (camera.position.z > posicionz-45) )
+					trampa = true;
+					
+				if(trampa){
+					movil.position.x += 15*direccion*clock.getDelta();
+				
+					if(movil.position.x < posicionorix-UNITWIDTH)
+						direccion *= 0;
+				}
+			}
 
 			function animate() {
 								
 				requestAnimationFrame( animate );
 										
 				animateJugador();
-		
+				
+				ActivarTrampa();
 				//-------------------------
 				//Cambio al nivel 2 
 				//-------------------------
