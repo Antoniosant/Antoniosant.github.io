@@ -29,16 +29,7 @@
 					Look: MOUSE or Device Orientation
 				</div>
 		</div>
-		
-		<div id ='final'>
-			
-			<div id="game">
-					<span style="font-size:36px">YOU WIN!!</span>
-		
-				</div>
-		</div>
-		
-		
+	
 			
 		<script type="module">
 
@@ -79,8 +70,6 @@
 			
 			var clock = new THREE.Clock();
 			
-			var Reloj = new THREE.Clock(false);
-			
 			var vec = new THREE.Vector3();
 			var vecPrueba = new THREE.Vector3();
 			
@@ -99,6 +88,8 @@
 			var level = 1; //indicador de nivel 
 			var marcador = 0; //Puntuacion
 			
+			var game_over = false; //Parametro fin de juego 
+			
 			//Cronometro
 			var h = 0;
 			var m = 0;
@@ -110,12 +101,12 @@
 			var MINOSPEED = 4.0;
 
 			var minoVelocity = new THREE.Vector3();
-			var MINOCOLLISIONDISTANCE = 2;
+			var MINOCOLLISIONDISTANCE = 10;
 			
 			
 
 			init();
-			animate();
+			
 
 			function init() {
 				
@@ -150,6 +141,7 @@
 				const rig = new THREE.Object3D();
 				rig.add(camera);
 				scene.add(rig);
+				
 				
 				//Controls
 				if(is_mobile){
@@ -189,10 +181,15 @@
 
 					} );
 					controls.addEventListener( 'unlock', function () {
+						
+						if(!game_over){
+							blocker.style.display = 'block';
+							instructions.style.display = '';
+							parar();
+						} else {
 
-						blocker.style.display = 'block';
-						instructions.style.display = '';
-						parar();
+							location.reload();
+						}
 
 					} );
 					
@@ -292,11 +289,10 @@
 				// Add perimeter walls that surround the maze
 				createPerimWalls();
 				
-				final.style.display = 'none';
-				game.style.display = 'none';
+				//crearMino();
 				
-				crearMino();
 				
+				animate();
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -650,7 +646,7 @@
 				objects= [];
 			}
 			
-			function createtrick(camera){   
+			/*function createtrick(camera){   
 				var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 5 );
 				var vec = new THREE.Vector3;
 				var intersections;
@@ -666,7 +662,7 @@
 				intersections = raycaster.intersectObject(cubito);
 				if(intersections.length >0)
 					console.log('holaa');
-			}
+			}*/
 			
 			//--------------------------------------
 			//Código para cronometro 
@@ -717,19 +713,23 @@
 						document.getElementById("puntuacion").innerHTML = "Puntuacion: " + marcador; 
 						break;
 					case 2:
-						if(s< 59){
-							marcador += 100; 
-						} else if(m>1 && m < 3){
-							marcador += 50; 
-						} else if(m > 3){
-							marcador += 25; 
+						if(!game_over){
+							if(s< 59){
+								marcador += 100; 
+							} else if(m>1 && m < 3){
+								marcador += 50; 
+							} else if(m > 3){
+								marcador += 25; 
+							}
+							document.getElementById("puntuacion").innerHTML = "Puntuacion: " + marcador; 
 						}
-						document.getElementById("puntuacion").innerHTML = "Puntuacion: " + marcador; 
 						break;
 				}
 			}
-			
-			function crearMino(){
+			//-------------------------------
+			// Funciones Minotauro
+			//-------------------------------
+			/*function crearMino(){
 				
 				var manager = new THREE.LoadingManager();
 				manager.addHandler( /\.dds$/i, new DDSLoader() );
@@ -779,6 +779,34 @@
 				max = Math.floor(max);
 				return Math.floor(Math.random() * (max - min)) + min;
 			}
+			
+			function detectMinoCollision() {
+				var intersections;
+				
+				// Get the rotation matrix from dino
+				var matrix = new THREE.Matrix4();
+				matrix.extractRotation(mino.matrix);
+				// Create direction vector
+				var directionFront = new THREE.Vector3(0, 0, 1);
+
+				// Get the vectors coming from the front of the dino
+				directionFront.applyMatrix4(matrix);
+
+				// Create raycaster
+				var rayCasterF = new THREE.Raycaster(mino.position, directionFront);
+				// If we have a front collision, we have to adjust our direction so return true
+				/*if (rayIntersect(rayCasterF, MINOCOLLISIONDISTANCE))
+					return true;
+				else
+					return false;
+					
+				intersections = rayCasterF.intersectObjects( collidableObjects,true );
+				if(intersections.length >0){
+					return true;
+				} else {
+					return false;
+				}
+			}
 			function animateMino(delta) {
 				// Gradual slowdown
 				minoVelocity.x -= minoVelocity.x * 10.0 * delta;
@@ -801,109 +829,94 @@
 					mino.rotation.y += randomDirection;
 				}
 			}
-			function detectMinoCollision() {
-				// Get the rotation matrix from dino
-				var matrix = new THREE.Matrix4();
-				matrix.extractRotation(mino.matrix);
-				// Create direction vector
-				var directionFront = new THREE.Vector3(0, 0, 1);
-
-				// Get the vectors coming from the front of the dino
-				directionFront.applyMatrix4(matrix);
-
-				// Create raycaster
-				var rayCasterF = new THREE.Raycaster(mino.position, directionFront);
-				// If we have a front collision, we have to adjust our direction so return true
-				if (rayIntersect(rayCasterF, MINOCOLLISIONDISTANCE))
-					return true;
-				else
-					return false;
-			}
+			*/
 			
 			//---------------------------------------
 			// Loop del programa
 			//---------------------------------------
-			function animate() {
-
-				requestAnimationFrame( animate );
-						
-					//console.log(camera.position);
+			
+			function animateJugador(){
 					
-					DetectObstaculo(camera);
+				DetectObstaculo(camera);
+				var time = performance.now();
+				var delta = ( time - prevTime ) / 1000;	
+
+				velocity.x -= velocity.x * 10.0 * delta;
+				velocity.z -= velocity.z * 10.0 * delta;
+
+
+				direction.z = Number( moveForward ) - Number( moveBackward );
+				direction.x = Number( moveRight ) - Number( moveLeft );
+				direction.normalize(); // this ensures consistent movements in all directions
+
+				if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+				if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+					
+				if(is_mobile){
+					moverDerecho(- velocity.x * delta );
+					moverAdelante( - velocity.z * delta );
+				} else {
+					controls.moveRight( - velocity.x * delta );
+					controls.moveForward( - velocity.z * delta );
+				}
 				
-
-					var time = performance.now();
-					var delta = ( time - prevTime ) / 1000;
+				prevTime = time;
 					
-					
+			}
 
-					velocity.x -= velocity.x * 10.0 * delta;
-					velocity.z -= velocity.z * 10.0 * delta;
-
-
-					direction.z = Number( moveForward ) - Number( moveBackward );
-					direction.x = Number( moveRight ) - Number( moveLeft );
-					direction.normalize(); // this ensures consistent movements in all directions
-
-					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-
-					
-					if(is_mobile){
-						moverDerecho(- velocity.x * delta );
-						moverAdelante( - velocity.z * delta );
-					} else {
-						controls.moveRight( - velocity.x * delta );
-						controls.moveForward( - velocity.z * delta );
-					}
-					
-					
-					prevTime = time;
+			function animate() {
+								
+				requestAnimationFrame( animate );
 										
-					
-					//loader.rotation.y += 0.05;
-					
-					//-------------------------
-					//Cambio al nivel 2 
-					//-------------------------
-					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
-						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
-					{
-						parar();
-						CalculoPuntuacion();
-						reiniciar();
+				animateJugador();
+		
+				//-------------------------
+				//Cambio al nivel 2 
+				//-------------------------
+				if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
+					(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
+				{
+					parar();
+					CalculoPuntuacion();
+					reiniciar();
 						
 						 
-						BorrarEscena(scene);
-						// Add the walls(cubes) of the maze
-						createMazeCubes2();
-						// Add ground plane
-						createGround();
-						// Add perimeter walls that surround the maze
-						createPerimWalls();
+					BorrarEscena(scene);
+					// Creo las paredes del laberinto 
+					createMazeCubes2();
+					// Creo el suelo 
+					createGround();
+					// Creo las paredes que delimitan el laberinto 
+					createPerimWalls();
 						
-						level = 2;
-						cronometrar();
+					level = 2;
+					cronometrar();
 						
-					}
+				}
 					
-					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
-						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
-					{
-						parar();
-						CalculoPuntuacion();
-						//Mensaje GAME OVER 
+				if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
+				   (camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
+				{
+					parar();
+					CalculoPuntuacion();
+					game_over = true;
+					//Mensaje GAME OVER 
+					blocker.style.display = '';
+					instructions.innerHTML = "GAME OVER </br></br> " + " Tu puntacion: "+ marcador +"</br> Press ESC to restart";
+					instructions.style.display = '';
+					
 						
 
-					}
+				}
 					
-					animateMino(delta);
-					if(is_mobile){
-						effect.render(scene, camera);
-						controls.update();
-					} else {
-						renderer.render(scene, camera);
-					}
+				//animateMino(delta);
+				if(is_mobile){
+					effect.render(scene, camera);
+					controls.update();
+				} else {
+					renderer.render(scene, camera);
+				}
 
 			}
 
