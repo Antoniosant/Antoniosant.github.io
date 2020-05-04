@@ -168,6 +168,7 @@
 						blocker.style.display = 'none';
 
 					}, false );
+
 					
 
 
@@ -898,7 +899,8 @@
 
 			function animate() {
 								
-				requestAnimationFrame( animate );
+				 renderer.setAnimationLoop(animate);
+
 										
 				animateJugador();
 				
@@ -944,9 +946,11 @@
 					
 				//animateMino(delta);
 				if(is_mobile){
+
 					effect.render(scene, camera);
 					controls.update();
 					
+
 				} else {
 					renderer.render(scene, camera);
 				}
