@@ -45,6 +45,8 @@
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 			
+			import {VRButton} from '/examples/jsm/webxr/VRButton.js';
+			
 
 			var camera, scene, renderer, controls;
 
@@ -151,7 +153,7 @@
 				//Controls
 				if(is_mobile){
 					scene.add(camera);
-					
+					/*
 					effect = new StereoEffect(renderer);
 			
 					controls = new DeviceOrientationControls(camera);
@@ -166,7 +168,10 @@
 						blocker.style.display = 'none';
 
 					}, false );
-					
+					*/
+					 renderer.xr.enabled = true;
+					document.body.appendChild(VRButton.createButton(renderer));
+
 					
 				} else {
 					controls = new PointerLockControls( camera, document.body );
@@ -894,7 +899,8 @@
 
 			function animate() {
 								
-				requestAnimationFrame( animate );
+				 renderer.setAnimationLoop(animate);
+
 										
 				animateJugador();
 				
@@ -940,8 +946,9 @@
 					
 				//animateMino(delta);
 				if(is_mobile){
-					effect.render(scene, camera);
-					controls.update();
+					/*effect.render(scene, camera);
+					controls.update();*/
+					renderer.render(scene, camera);
 				} else {
 					renderer.render(scene, camera);
 				}
