@@ -45,6 +45,8 @@
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 			
+			import {VRButton} from '/examples/jsm/webxr/VRButton.js';
+			
 
 			var camera, scene, renderer, controls;
 
@@ -167,6 +169,8 @@
 
 					}, false );
 					
+
+
 					
 				} else {
 					controls = new PointerLockControls( camera, document.body );
@@ -942,6 +946,7 @@
 				if(is_mobile){
 					effect.render(scene, camera);
 					controls.update();
+					
 				} else {
 					renderer.render(scene, camera);
 				}
