@@ -13,6 +13,9 @@
 	</head>
 	<body>
 		
+		 <script>
+ 
+    </script>
 	
 		<div id='container'>
 				<div id="hms"></div>
@@ -29,7 +32,12 @@
 					Look: MOUSE or Device Orientation
 				</div>
 		</div>
-	
+		
+		<script src="webvr/es6-promise.min.js"></script>
+		<script src="webvr/three.min.js"></script>
+		<script src="webvr/VREffect.js"></script>
+		<script src="webvr/webvr-polyfill.js"></script>
+		<script src="webvr/webvr-manager.js"></script>
 			
 		<script type="module">
 
@@ -45,12 +53,14 @@
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 			
-			import {VRButton} from '/examples/jsm/webxr/VRButton.js';
 			
 
 			var camera, scene, renderer, controls;
 
 			var objects = [];
+			
+			var WINDOW_WIDTH = window.innerWidth;
+			var WINDOW_HEIGHT = window.innerHeight;
 
 			var raycaster;
 
@@ -111,6 +121,8 @@
 			var trampa = false;
 			
 			
+			var flag = false;
+			
 
 			init();
 			
@@ -126,6 +138,8 @@
 				container = document.getElementById('container');
 				container.appendChild(element);
 				
+				 
+				
 				document.getElementById("hms").innerHTML="00:00:00";
 				document.getElementById("puntuacion").innerHTML="Puntuación: " + marcador;
 				
@@ -140,12 +154,11 @@
 				scene.background = new THREE.Color( 0xf0f0ff);
 				//scene.fog = new THREE.Fog( 0xCECECE, 0, 200 );
 				
-
+				
+				
 				var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
 				light.position.set( 0.5, 1, 0.75 );
 				scene.add( light );
-				
-
 				
 				
 				//Controls
@@ -153,7 +166,8 @@
 					scene.add(camera);
 					
 					effect = new StereoEffect(renderer);
-			
+					effect.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+					
 					controls = new DeviceOrientationControls(camera);
 					controls.connect();
 					
@@ -297,7 +311,7 @@
 				// Add perimeter walls that surround the maze
 				createPerimWalls();
 				
-				//crearMino();
+				crearMino();
 				
 				
 				animate();
@@ -586,6 +600,7 @@
 				
 				
 				
+				
 			}
 			
 			
@@ -740,13 +755,9 @@
 			//-------------------------------
 			// Funciones Minotauro
 			//-------------------------------
-			/*function crearMino(){
+			function crearMino(){
 				
 				var manager = new THREE.LoadingManager();
-				manager.addHandler( /\.dds$/i, new DDSLoader() );
-
-				// comment in the following line and import TGALoader if your asset uses TGA textures
-				// manager.addHandler( /\.tga$/i, new TGALoader() );
 
 				new MTLLoader( manager )
 					.setPath( 'examples/models/obj/Minos/' )
@@ -762,7 +773,11 @@
 								
 								object.position.x = 157;
 								object.position.z = -113;
-								object.position.y = -45;
+								object.position.y = -35;
+								
+								object.scale.x = 0.8;
+								object.scale.y = 0.8;
+								object.scale.z =0.8;
 								object.name = "Mino";
 								
 								scene.add(object);
@@ -770,8 +785,15 @@
 								// Store the dino
 								mino = scene.getObjectByName("Mino"); 
 								
+								flag = true;
+								
 
-							},);
+							},function ( xhr ) {
+
+								console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+							},
+							);
 
 					} );
 			}
@@ -793,23 +815,10 @@
 			
 			function detectMinoCollision() {
 				var intersections;
-				
-				// Get the rotation matrix from dino
-				var matrix = new THREE.Matrix4();
-				matrix.extractRotation(mino.matrix);
-				// Create direction vector
+
 				var directionFront = new THREE.Vector3(0, 0, 1);
-
-				// Get the vectors coming from the front of the dino
-				directionFront.applyMatrix4(matrix);
-
 				// Create raycaster
 				var rayCasterF = new THREE.Raycaster(mino.position, directionFront);
-				// If we have a front collision, we have to adjust our direction so return true
-				/*if (rayIntersect(rayCasterF, MINOCOLLISIONDISTANCE))
-					return true;
-				else
-					return false;
 					
 				intersections = rayCasterF.intersectObjects( collidableObjects,true );
 				if(intersections.length >0){
@@ -820,6 +829,7 @@
 			}
 			function animateMino(delta) {
 				// Gradual slowdown
+
 				minoVelocity.x -= minoVelocity.x * 10.0 * delta;
 				minoVelocity.z -= minoVelocity.z * 10.0 * delta;
 
@@ -840,18 +850,17 @@
 					mino.rotation.y += randomDirection;
 				}
 			}
-			*/
+			
 			
 			
 			//---------------------------------------
 			// Loop del programa
 			//---------------------------------------
 			
-			function animateJugador(){
+			function animateJugador(delta){
 					
 				DetectObstaculo(camera);
-				var time = performance.now();
-				var delta = ( time - prevTime ) / 1000;	
+				
 
 				velocity.x -= velocity.x * 10.0 * delta;
 				velocity.z -= velocity.z * 10.0 * delta;
@@ -873,7 +882,7 @@
 					controls.moveForward( - velocity.z * delta );
 				}
 				
-				prevTime = time;
+				
 					
 			}
 			
@@ -898,10 +907,14 @@
 			function animate() {
 								
 				 renderer.setAnimationLoop(animate);
-
-										
-				animateJugador();
 				
+				if(flag){
+							
+				var time = performance.now();
+				var delta = ( time - prevTime ) / 1000;	
+				
+				animateJugador(delta);
+				animateMino(delta);
 				ActivarTrampa();
 				//-------------------------
 				//Cambio al nivel 2 
@@ -942,7 +955,7 @@
 
 				}
 					
-				//animateMino(delta);
+				
 				if(is_mobile){
 
 					effect.render(scene, camera);
@@ -952,7 +965,9 @@
 				} else {
 					renderer.render(scene, camera);
 				}
-
+				
+				prevTime = time;
+				}
 			}
 
 		</script>
