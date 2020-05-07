@@ -33,11 +33,9 @@
 				</div>
 		</div>
 		
-		<script src="webvr/es6-promise.min.js"></script>
-		<script src="webvr/three.min.js"></script>
-		<script src="webvr/VREffect.js"></script>
-		<script src="webvr/webvr-polyfill.js"></script>
-		<script src="webvr/webvr-manager.js"></script>
+		<div id="minoalert"></div>
+		
+		<script src="examples/js/libs/ammo.js"></script>
 			
 		<script type="module">
 
@@ -55,7 +53,7 @@
 			
 			
 
-			var camera, scene, renderer, controls;
+			var camera, scene, renderer, controls, effect, element, container, cube;
 
 			var objects = [];
 			
@@ -77,13 +75,10 @@
 			var color = new THREE.Color();
 			
 			var is_mobile= /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-			
-			var effect,element,container,cube;
-			
+						
 			var clock = new THREE.Clock();
 			
 			var vec = new THREE.Vector3();
-			var vecPrueba = new THREE.Vector3();
 			
 			var UNITWIDTH = 45;                 // Width of a cubes in the maze
 			var UNITHEIGHT = 45;                // Height of the cubes in the maze
@@ -110,10 +105,14 @@
 			
 			//Minotauro			
 			var mino;
-			var MINOSPEED = 4.0;
+			var MINOSPEED = 200.0;
 
 			var minoVelocity = new THREE.Vector3();
 			var MINOCOLLISIONDISTANCE = 10;
+			var CATCHOFFSET = 120;
+			
+			 var minoAlert = document.getElementById('minoalert');
+			minoAlert.style.display = 'none';
 			
 			var movil;
 			var posicionorix;
@@ -122,11 +121,13 @@
 			
 			
 			var flag = false;
+		
 			
-
+			
+		
 			init();
 			
-
+			
 			function init() {
 				
 				
@@ -138,7 +139,7 @@
 				container = document.getElementById('container');
 				container.appendChild(element);
 				
-				 
+				
 				
 				document.getElementById("hms").innerHTML="00:00:00";
 				document.getElementById("puntuacion").innerHTML="Puntuación: " + marcador;
@@ -302,7 +303,6 @@
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
-				
 				
 				// Add the walls(cubes) of the maze
 				createMazeCubes();
@@ -610,7 +610,7 @@
 				
 				var texture = new THREE.TextureLoader().load( '/examples/textures/tierra.jpg' );
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
-				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide,map: texture});
+				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide,map:texture});
 				
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set(8, 8);
@@ -779,11 +779,11 @@
 								object.scale.y = 0.8;
 								object.scale.z =0.8;
 								object.name = "Mino";
-								
+								mino = object;
 								scene.add(object);
         
 								// Store the dino
-								mino = scene.getObjectByName("Mino"); 
+								//mino = scene.getObjectByName("Mino"); 
 								
 								flag = true;
 								
@@ -814,18 +814,27 @@
 			}
 			
 			function detectMinoCollision() {
-				var intersections;
-
+			
+				var origin = new THREE.Vector3(mino.position.x,20,mino.position.z);
+				
+				 // Get the rotation matrix from dino
+				var matrix = new THREE.Matrix4();
+				matrix.extractRotation(mino.matrix);
+				// Create direction vector
 				var directionFront = new THREE.Vector3(0, 0, 1);
+
+				// Get the vectors coming from the front of the dino
+				directionFront.applyMatrix4(matrix);
+				
 				// Create raycaster
-				var rayCasterF = new THREE.Raycaster(mino.position, directionFront);
-					
-				intersections = rayCasterF.intersectObjects( collidableObjects,true );
-				if(intersections.length >0){
+				var rayCasterF = new THREE.Raycaster(origin, directionFront);
+				
+				if (rayIntersect(rayCasterF, MINOCOLLISIONDISTANCE)) {
 					return true;
 				} else {
 					return false;
-				}
+				}				
+			
 			}
 			function animateMino(delta) {
 				// Gradual slowdown
@@ -839,6 +848,8 @@
 					minoVelocity.z += MINOSPEED * delta;
 					// Move the dino
 					mino.translateZ(minoVelocity.z * delta);
+					
+					
 
 				} else {
 					// Collision. Adjust direction
@@ -846,11 +857,35 @@
 					var randomIndex = getRandomInt(0, 2);
 					var randomDirection = (Math.PI/2) * directionMultiples[randomIndex];
 
-					minoVelocity.z += DINOSPEED * delta;
+					minoVelocity.z += MINOSPEED * delta;
 					mino.rotation.y += randomDirection;
 				}
 			}
-			
+			// Make the dino chase the player
+			function triggerChase() {
+				// Check if in dino agro range
+				if (mino.position.distanceTo(camera.position) < 100) {
+					// Adject the target's y value. We only care about x and z for movement.
+					var lookTarget = new THREE.Vector3();
+					lookTarget.copy(camera.position);
+					lookTarget.y = mino.position.y;
+
+					// Make dino face camera
+					mino.lookAt(lookTarget);
+
+					// Get distance between dino and camera with a 120 unit offset
+					// Game over when dino is the value of CATCHOFFSET units away from camera
+					var distanceFrom = Math.round(mino.position.distanceTo(camera.position)) - CATCHOFFSET;
+					// Alert and display distance between camera and dino
+					minoAlert.innerHTML = "El Minotauro te ha visto! Distancia: " + distanceFrom;
+					minoAlert.style.display = '';
+					return true;
+				// Not in agro range, don't start distance countdown
+				} else {
+					minoAlert.style.display = 'none';
+					return false;
+				}
+			}
 			
 			
 			//---------------------------------------
@@ -915,6 +950,7 @@
 				
 				animateJugador(delta);
 				animateMino(delta);
+				triggerChase();
 				ActivarTrampa();
 				//-------------------------
 				//Cambio al nivel 2 
