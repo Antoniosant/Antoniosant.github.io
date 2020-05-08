@@ -109,7 +109,8 @@
 
 			var minoVelocity = new THREE.Vector3();
 			var MINOCOLLISIONDISTANCE = 10;
-			var CATCHOFFSET = 120;
+			var CATCHOFFSET = 20;
+			var correct = new THREE.Object3D();
 			
 			 var minoAlert = document.getElementById('minoalert');
 			minoAlert.style.display = 'none';
@@ -583,7 +584,7 @@
 						}
 					}
 				}
-				// The size of the maze will be how many cubes wide the array is * the width of a cube
+			
 				
 				mapSize = totalCubesWide * UNITWIDTH;
 				var positionx = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
@@ -606,8 +607,7 @@
 			
 			
 			function createGround() { 					//Funcion que crea el suelo segun las dimensiones del mapa
-				// Create ground geometry and material
-				
+			
 				var texture = new THREE.TextureLoader().load( '/examples/textures/tierra.jpg' );
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
 				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide,map:texture});
@@ -617,27 +617,25 @@
 
 				var ground = new THREE.Mesh(groundGeo, groundMat);
 				ground.position.set(0, 1, 0);
-				// Rotate the place to ground level
+
 				ground.rotation.x = Math.PI/2
 				scene.add(ground);
 			}
 			
 			function createPerimWalls() { 				//Funcion que crea los muros exteriores
-				var halfMap = mapSize / 2;  // Half the size of the map
-				var sign = 1;               // Used to make an amount positive or negative
+				var halfMap = mapSize / 2;  
+				var sign = 1;               
 
 				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
 				
-				// Loop through twice, making two perimeter walls at a time
+
 				for (var i = 0; i < 2; i++) {
-					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);
-					// Make the material double sided
-					
+					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);					
 					
 					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide, map:texture});
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					texture.repeat.set( 1, 1 );
-					// Make two walls
+					
 					var perimWallLR = new THREE.Mesh(perimGeo, perimMat);
 					var perimWallFB = new THREE.Mesh(perimGeo, perimMat);
 
@@ -660,7 +658,7 @@
 				}
 			}
 			
-			function BorrarEscena(scene) { 					//funcion que borra todos los objetos de una escena
+			function BorrarEscena(scene) { 	//funcion que borra todos los objetos de una escena
 				
 				var obj;
 				for( var i = scene.children.length - 1; i >= 0; i--){
@@ -837,22 +835,19 @@
 			
 			}
 			function animateMino(delta) {
-				// Gradual slowdown
 
 				minoVelocity.x -= minoVelocity.x * 10.0 * delta;
 				minoVelocity.z -= minoVelocity.z * 10.0 * delta;
 
 
-				// If no collision, apply movement velocity
+				// Si no hay pared, movemos el Minotauro
 				if (detectMinoCollision() == false) {
 					minoVelocity.z += MINOSPEED * delta;
 					// Move the dino
-					mino.translateZ(minoVelocity.z * delta);
-					
-					
+					mino.translateZ(minoVelocity.z * delta);					
 
 				} else {
-					// Collision. Adjust direction
+					// Pared encontrada, cambiamos la direccion
 					var directionMultiples = [-1, 1, 2];
 					var randomIndex = getRandomInt(0, 2);
 					var randomDirection = (Math.PI/2) * directionMultiples[randomIndex];
@@ -861,36 +856,41 @@
 					mino.rotation.y += randomDirection;
 				}
 			}
-			// Make the dino chase the player
-			function triggerChase() {
-				// Check if in dino agro range
-				if (mino.position.distanceTo(camera.position) < 100) {
-					// Adject the target's y value. We only care about x and z for movement.
+			
+			function triggerChase() { //funcion que hace que nos persiga el Minotaruo
+				
+				correct.position.set(mino.position.x,20,mino.position.z);
+				
+				if (correct.position.distanceTo(camera.position) < 100) {
+					
 					var lookTarget = new THREE.Vector3();
 					lookTarget.copy(camera.position);
 					lookTarget.y = mino.position.y;
 
-					// Make dino face camera
 					mino.lookAt(lookTarget);
 
-					// Get distance between dino and camera with a 120 unit offset
-					// Game over when dino is the value of CATCHOFFSET units away from camera
-					var distanceFrom = Math.round(mino.position.distanceTo(camera.position)) - CATCHOFFSET;
-					// Alert and display distance between camera and dino
+					var distanceFrom = Math.round(correct.position.distanceTo(camera.position)) ;
+					//Mostramos la distancia a la que tenemos el minotauro
 					minoAlert.innerHTML = "El Minotauro te ha visto! Distancia: " + distanceFrom;
 					minoAlert.style.display = '';
 					return true;
-				// Not in agro range, don't start distance countdown
+
 				} else {
 					minoAlert.style.display = 'none';
 					return false;
 				}
 			}
+			function caught() {
+				blocker.style.display = '';
+				instructions.innerHTML = "GAME OVER </br></br></br> Press ESC to restart";
+				game_over = true;
+				instructions.style.display = '';
+				minoalert.style.display = 'none';
+			}
 			
-			
-			//---------------------------------------
-			// Loop del programa
-			//---------------------------------------
+			//------------------------------
+			//Funcion Jugador
+			//------------------------------
 			
 			function animateJugador(delta){
 					
@@ -903,7 +903,7 @@
 
 				direction.z = Number( moveForward ) - Number( moveBackward );
 				direction.x = Number( moveRight ) - Number( moveLeft );
-				direction.normalize(); // this ensures consistent movements in all directions
+				direction.normalize(); 
 
 				if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
 				if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
@@ -916,11 +916,12 @@
 					controls.moveRight( - velocity.x * delta );
 					controls.moveForward( - velocity.z * delta );
 				}
-				
-				
 					
 			}
 			
+			//---------------------------
+			//Pared Movil
+			//---------------------------
 			
 			function ActivarTrampa(){
 				//cubo 22
@@ -938,71 +939,82 @@
 						direccion *= 0;
 				}
 			}
-
+			//---------------------------------------
+			// Loop del programa
+			//---------------------------------------
 			function animate() {
 								
 				 renderer.setAnimationLoop(animate);
 				
 				if(flag){
 							
-				var time = performance.now();
-				var delta = ( time - prevTime ) / 1000;	
-				
-				animateJugador(delta);
-				animateMino(delta);
-				triggerChase();
-				ActivarTrampa();
-				//-------------------------
-				//Cambio al nivel 2 
-				//-------------------------
-				if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
-					(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
-				{
-					parar();
-					CalculoPuntuacion();
-					reiniciar();
-						
-						 
-					BorrarEscena(scene);
-					// Creo las paredes del laberinto 
-					createMazeCubes2();
-					// Creo el suelo 
-					createGround();
-					// Creo las paredes que delimitan el laberinto 
-					createPerimWalls();
-						
-					level = 2;
-					cronometrar();
-						
-				}
+					var time = performance.now();
+					var delta = ( time - prevTime ) / 1000;	
 					
-				if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
-				   (camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
-				{
-					parar();
-					CalculoPuntuacion();
-					game_over = true;
-					//Mensaje GAME OVER 
-					blocker.style.display = '';
-					instructions.innerHTML = "GAME OVER </br></br> " + " Tu puntacion: "+ marcador +"</br> Press ESC to restart";
-					instructions.style.display = '';
+					triggerChase();
+					if (correct.position.distanceTo(camera.position) < CATCHOFFSET) {
+						caught();
+						// Player is at an undetected distance
+						// Keep the dino moving and let the player keep moving too
+					} else {
+						animateJugador(delta);
+						animateMino(delta);
+					}
+					
+					
+					
+					ActivarTrampa();
+					//-------------------------
+					//Cambio al nivel 2 
+					//-------------------------
+					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
+						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
+					{
+						parar();
+						CalculoPuntuacion();
+						reiniciar();
+						
+							
+						BorrarEscena(scene);
+						// Creo las paredes del laberinto 
+						createMazeCubes2();
+						// Creo el suelo 
+						createGround();
+						// Creo las paredes que delimitan el laberinto 
+						createPerimWalls();
+						
+						level = 2;
+						cronometrar();
+						
+					}
+					
+					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
+					(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
+					{
+						parar();
+						CalculoPuntuacion();
+						game_over = true;
+						//Mensaje GAME OVER 
+						blocker.style.display = '';
+						instructions.innerHTML = "GAME OVER </br></br> " + " Tu puntacion: "+ marcador +"</br> Press ESC to restart";
+						instructions.style.display = '';
 					
 						
 
-				}
+					}
 					
 				
-				if(is_mobile){
+					if(is_mobile){
 
-					effect.render(scene, camera);
-					controls.update();
+						effect.render(scene, camera);
+						controls.update();
 					
 
-				} else {
-					renderer.render(scene, camera);
-				}
+					} else {
+						renderer.render(scene, camera);
+					}
 				
-				prevTime = time;
+					prevTime = time;
 				}
 			}
 
