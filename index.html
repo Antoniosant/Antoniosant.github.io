@@ -88,7 +88,7 @@
 			
 			var mapSize,listener,sound,mesh;
 			
-			var loader,cubito;
+			var loader ,cubito;
 		
 			var cosas = [];
 			
@@ -122,13 +122,14 @@
 			
 			
 			var flag = false;
-		
 			
-			
+			var pista;
+				
 		
 			init();
+						
 			
-			
+						
 			function init() {
 				
 				
@@ -140,7 +141,7 @@
 				container = document.getElementById('container');
 				container.appendChild(element);
 				
-				 renderer.xr.enabled = true;
+				renderer.xr.enabled = true;
 				document.body.appendChild(VRButton.createButton(renderer));
 				
 				
@@ -156,7 +157,7 @@
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xf0f0ff);
-				//scene.fog = new THREE.Fog( 0xCECECE, 0, 200 );
+				scene.fog = new THREE.Fog( 0xCECECE, 0, 100 );
 				
 				
 				
@@ -317,6 +318,7 @@
 				crearMino();
 				
 				
+
 				animate();
 
 				window.addEventListener( 'resize', onWindowResize, false );
@@ -379,7 +381,7 @@
 					if(intersections.length >0)
 						moveForward = false;
 						
-						
+			
 					aux = vec.negate();
 					raycaster.ray.direction.copy(aux);
 		
@@ -408,6 +410,66 @@
 			//----------------------------------------
 			//Codigo Entorno
 			//----------------------------------------
+			
+			function createkey(){
+			
+			
+			var manager = new THREE.LoadingManager();
+				manager.addHandler( /\.dds$/i, new DDSLoader() );
+				
+				new MTLLoader( manager )
+					.setPath( 'examples/models/obj/key/' )
+					.load( 'old_key.mtl', function ( materials ) {
+
+						materials.preload();
+
+						 new OBJLoader( manager )
+							.setMaterials( materials )
+							.setPath( 'examples/models/obj/key/' )
+							.load( 'old_key.obj', function ( object ) {
+								
+								object.scale.x = 0.1;
+								object.scale.y = 0.1;
+								object.scale.z = 0.1;
+								object.position.z = -428;
+								object.position.x = 158;
+								object.position.y = 20;
+								
+								loader = object;
+								
+								
+								scene.add( loader);
+							
+							
+							var box = new THREE.BoxGeometry( 5,2,5 );
+							var material = new THREE.MeshPhongMaterial();
+							cube = new THREE.Mesh( box, material );
+					
+							cube.position.x = loader.position.x;
+							cube.position.y = 50;
+							cube.position.z = loader.position.z;
+				
+							cube.visible = false;
+				
+							scene.add( cube );
+
+							}, // called when loading is in progresses
+							function ( xhr ) {
+
+							console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+							}, 
+							function ( error ) {
+
+								console.log( 'An error happened' );
+
+							} );
+
+					} );
+					
+				
+			}
+			
 			function createMazeCubes2() {                         //Funcion que crea el segundo mapa
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
@@ -437,7 +499,7 @@
 
 				
 				// wall details
-				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
+				var texture = new THREE.TextureLoader().load( '/examples/textures/ruins.jpg' );
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
 
@@ -471,51 +533,11 @@
 						}
 					}
 				}
-				//-----------------------------------------------------
-				//Codigo crear pista
-				//-----------------------------------------------------
-				/*
-				var manager = new THREE.LoadingManager();
-				manager.addHandler( /\.dds$/i, new DDSLoader() );
-				
-				new MTLLoader( manager )
-					.setPath( 'examples/models/obj/key/' )
-					.load( 'old_key.mtl', function ( materials ) {
-
-						materials.preload();
-
-						 new OBJLoader( manager )
-							.setMaterials( materials )
-							.setPath( 'examples/models/obj/key/' )
-							.load( 'old_key.obj', function ( object ) {
-								
-								object.scale.x = 0.1;
-								object.scale.y = 0.1;
-								object.scale.z = 0.1;
-								object.position.z = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
-								object.position.x = (14- totalCubesWide / 2) * UNITWIDTH + widthOffset;
-								object.position.y = 10;
-								loader = object;
-								
-								scene.add( loader);
-							
-
-							}, // called when loading is in progresses
-							function ( xhr ) {
-
-							console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-							}, 
-							function ( error ) {
-
-								console.log( 'An error happened' );
-
-							} );
-
-					} );*/
 				
 				
-				// The size of the maze will be how many cubes wide the array is * the width of a cube
+				createkey();
+				
+					
 				
 				mapSize = totalCubesWide * UNITWIDTH;
 				var positionx = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
@@ -541,7 +563,7 @@
 				[1, 1, 1, 0, 0, 0, 1, 1, 0, 0,  ],
 				[0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  ],
 				[0, 1, 1, 1, 0, 0, 0, 0, 0, 0,  ],
-				[0, 1, 0, 0, 0, 1, 1, 1, 1, 1,  ],
+				[0, 1, 0, 0, 0, 1, 0, 1, 1, 1,  ],
 				[0, 0, 0, 1, 1, 0, 0, 0, 0, 0,  ],
 				[0, 1, 1, 1, 1, 1, 1, 1, 1, 0,  ],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  ],
@@ -552,7 +574,7 @@
 				
 				// wall details
 				
-				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
+				var texture = new THREE.TextureLoader().load( '/examples/textures/ruins.jpg' );
 				var cubeGeo = new THREE.BoxGeometry(UNITWIDTH, UNITHEIGHT, UNITWIDTH);
 				var cubeMat = new THREE.MeshPhongMaterial({
 
@@ -610,9 +632,9 @@
 			
 			function createGround() { 					//Funcion que crea el suelo segun las dimensiones del mapa
 			
-				var texture = new THREE.TextureLoader().load( '/examples/textures/tierra.jpg' );
+				var texture = new THREE.TextureLoader().load( '/examples/textures/terrain/grasslight-big.jpg' );
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
-				var groundMat = new THREE.MeshPhongMaterial({ color: 0xA0522D, side: THREE.DoubleSide,map:texture});
+				var groundMat = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide,map:texture});
 				
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set(8, 8);
@@ -628,15 +650,17 @@
 				var halfMap = mapSize / 2;  
 				var sign = 1;               
 
-				var texture = new THREE.TextureLoader().load( '/examples/textures/fondo-pared-ladrillo-blanco-textura_53876-63571.jpg' );
+				var texture = new THREE.TextureLoader().load( '/examples/textures/ruins.jpg' );
 				
 
 				for (var i = 0; i < 2; i++) {
 					var perimGeo = new THREE.PlaneGeometry(mapSize, UNITHEIGHT);					
 					
-					var perimMat = new THREE.MeshPhongMaterial({ color: 0x464646, side: THREE.DoubleSide, map:texture});
-					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-					texture.repeat.set( 1, 1 );
+					var perimMat = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, map:texture});
+					
+					texture.wrapS=THREE.RepeatWrapping;
+					texture.wrapT=THREE.RepeatWrapping;
+					texture.repeat.set(10,2);
 					
 					var perimWallLR = new THREE.Mesh(perimGeo, perimMat);
 					var perimWallFB = new THREE.Mesh(perimGeo, perimMat);
@@ -672,22 +696,40 @@
 				objects= [];
 			}
 			
-			/*function createtrick(camera){   
-				var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 5 );
-				var vec = new THREE.Vector3;
-				var intersections;
+			
+			/*function showtrick(camera){   
 				
-				camera.getWorldDirection(vec);
-					
-				raycaster.ray.origin.copy( camera.position );
-				raycaster.ray.direction.copy(vec);
-					
-				//raycaster.ray.origin.z += 2;
-				cubito.position.set(loader.position.x,loader.position.y ,loader.position.z);
-					
-				intersections = raycaster.intersectObject(cubito);
-				if(intersections.length >0)
-					console.log('holaa');
+				var origin;
+				
+				//camera.getWorldPosition(origin);
+				
+				 // Get the rotation matrix from dino
+				var matrix = new THREE.Matrix4();
+				matrix.extractRotation(camera.matrix);
+				// Create direction vector
+				var directionFront = new THREE.Vector3(0, 0, 1);
+
+				// Get the vectors coming from the front of the dino
+				directionFront.applyMatrix4(matrix);
+				
+				// Create raycaster
+				var rayCasterF = new THREE.Raycaster(origin, directionFront,0,50);
+				
+				/*var intersects = rayCasterF.intersectObject(loader);
+				
+				
+				if (intersects.length() > 0) {
+					pista.visible = true;
+				}
+				pista.position.z = camera.position.z;
+				pista.position.x = camera.position.y;	
+				
+				/*var lookTarget = new THREE.Vector3();
+					lookTarget.copy(mesh.position);
+					lookTarget.y = mesh.position.y+30;
+
+					pista.lookAt(lookTarget);
+				
 			}*/
 			
 			//--------------------------------------
@@ -729,9 +771,9 @@
 				
 				switch(level){
 					case 1: 
-						if(s <= 30){
+						if(s <= 40){
 							marcador += 100; 
-						} else if(s>30 && s < 59){
+						} else if(s>40 && s < 59){
 							marcador += 50; 
 						} else if(m > 0){
 							marcador += 25; 
@@ -920,7 +962,7 @@
 			}
 			
 			//---------------------------
-			//Pared Movil
+			//Pared Movil del nivel 1
 			//---------------------------
 			
 			function ActivarTrampa(){
@@ -960,8 +1002,7 @@
 						animateJugador(delta);
 						animateMino(delta);
 					}
-					
-					
+									
 					
 					ActivarTrampa();
 					//-------------------------
@@ -1013,6 +1054,8 @@
 					} else {
 						renderer.render(scene, camera);
 					}
+					
+
 				
 					prevTime = time;
 				}
