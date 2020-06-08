@@ -141,8 +141,6 @@
 				container = document.getElementById('container');
 				container.appendChild(element);
 				
-				renderer.xr.enabled = true;
-				document.body.appendChild(VRButton.createButton(renderer));
 				
 				
 				document.getElementById("hms").innerHTML="00:00:00";
@@ -170,7 +168,7 @@
 				if(is_mobile){
 					scene.add(camera);
 					
-					/*effect = new StereoEffect(renderer);
+					effect = new StereoEffect(renderer);
 					effect.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 					
 					controls = new DeviceOrientationControls(camera);
@@ -185,7 +183,7 @@
 						blocker.style.display = 'none';
 
 					}, false );
-*/
+
 					
 
 
@@ -1047,10 +1045,10 @@
 				
 					if(is_mobile){
 
-						/*effect.render(scene, camera);
+						effect.render(scene, camera);
 						controls.update();
-					*/
-						renderer.render(scene, camera);
+					
+
 					} else {
 						renderer.render(scene, camera);
 					}
