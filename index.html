@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html >
+<html>
 	<head>
 		<title>Laberinto 3D</title>
 		<meta charset="utf-8">
@@ -994,14 +994,11 @@
 					
 					perseguir();
 					if (correct.position.distanceTo(camera.position) < CATCHOFFSET) {
-						capturado();
-						
-						
+						capturado();						
 					} else {
 						animateJugador(delta);
 						animateMino(delta);
-					}
-									
+					}			
 					
 					activarTrampa();
 					//-------------------------
@@ -1015,11 +1012,9 @@
 						reiniciar();
 						
 						crearNive2();
-
 						
 						level = 2;
-						cronometrar();
-						
+						cronometrar();	
 					}
 					
 					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
@@ -1028,28 +1023,20 @@
 						pausar();
 						CalculoPuntuacion();
 						game_over = true;
+						
 						//Mensaje GAME OVER 
 						blocker.style.display = '';
 						instructions.innerHTML = "GAME OVER </br></br> " + " Tu puntacion: "+ marcador +"</br> Press ESC to restart";
 						instructions.style.display = '';
-					
-						
-
 					}
 					
-				
 					if(is_mobile){
-
 						effect.render(scene, camera);
 						controls.update();
-					
-
 					} else {
 						renderer.render(scene, camera);
 					}
-					
-
-				
+		
 					prevTime = time;
 				}
 			}
