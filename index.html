@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html >
 	<head>
-		<title>Prueba para tfg</title>
+		<title>Laberinto 3D</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -13,9 +13,6 @@
 	</head>
 	<body>
 		
-		 <script>
- 
-    </script>
 	
 		<div id='container'>
 				<div id="hms"></div>
@@ -35,7 +32,7 @@
 		
 		<div id="minoalert"></div>
 		
-		<script src="examples/js/libs/ammo.js"></script>
+	
 			
 		<script type="module">
 
@@ -174,8 +171,6 @@
 					controls = new DeviceOrientationControls(camera);
 					controls.connect();
 					
-					
-
 					document.addEventListener( 'click', function () {
 						fullscreen();
 						cronometrar();
@@ -183,10 +178,6 @@
 						blocker.style.display = 'none';
 
 					}, false );
-
-					
-
-
 					
 				} else {
 					controls = new PointerLockControls( camera, document.body );
@@ -196,7 +187,6 @@
 						controls.lock();
 						cronometrar();
 						
-
 					}, false );
 					
 					controls.addEventListener( 'lock', function () {
@@ -210,12 +200,10 @@
 						if(!game_over){
 							blocker.style.display = 'block';
 							instructions.style.display = '';
-							parar();
+							pausar();
 						} else {
-
 							location.reload();
 						}
-
 					} );
 					
 					scene.add( controls.getObject() );
@@ -306,15 +294,8 @@
 				scene.add( mesh );
 				mesh.add(sound);
 				
-				// Add the walls(cubes) of the maze
-				createMazeCubes();
-				// Add ground plane
-				createGround();
-				// Add perimeter walls that surround the maze
-				createPerimWalls();
 				
-				crearMino();
-				
+				crearNivel1();
 				
 
 				animate();
@@ -322,7 +303,27 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
-
+			
+			function crearNivel1(){
+				// Add the walls(cubes) of the maze
+				crearParedes();
+				// Add ground plane
+				crearSuelo();
+				// Add perimeter walls that surround the maze
+				crearPerim();
+				
+				crearMino();
+			}
+			function crearNive2(){
+						BorrarEscena(scene);
+						// Creo las paredes del laberinto 
+						crearParedes2();
+						// Creo el suelo 
+						crearSuelo();
+						// Creo las paredes que delimitan el laberinto 
+						crearPerim();
+			}
+			
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -364,7 +365,7 @@
 			}
 			
 			
-			function DetectObstaculo(camera){ //Funcion para detectar objetos delante, atras, a izquerda y derecha del usuario.
+			function detectObstaculo(camera){ //Funcion para detectar objetos delante, atras, a izquerda y derecha del usuario.
 					var vec = new THREE.Vector3;
 					var aux = new THREE.Vector3;
 					var axis = new THREE.Vector3(0,1,0);
@@ -468,7 +469,7 @@
 				
 			}
 			
-			function createMazeCubes2() {                         //Funcion que crea el segundo mapa
+			function crearParedes2() {                         //Funcion que crea el segundo mapa
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -552,7 +553,7 @@
 				
 			}
 			
-			function createMazeCubes() { 							//Funcion que crea el primer mapa 
+			function crearParedes() { 							//Funcion que crea el primer mapa 
 				// Maze wall mapping, assuming even square
 				// 1's are cubes, 0's are empty space
 				var map = [
@@ -628,7 +629,7 @@
 			
 			
 			
-			function createGround() { 					//Funcion que crea el suelo segun las dimensiones del mapa
+			function crearSuelo() { 					//Funcion que crea el suelo segun las dimensiones del mapa
 			
 				var texture = new THREE.TextureLoader().load( '/examples/textures/terrain/grasslight-big.jpg' );
 				var groundGeo = new THREE.PlaneGeometry(mapSize, mapSize);
@@ -644,7 +645,7 @@
 				scene.add(ground);
 			}
 			
-			function createPerimWalls() { 				//Funcion que crea los muros exteriores
+			function crearPerim() { 				//Funcion que crea los muros exteriores
 				var halfMap = mapSize / 2;  
 				var sign = 1;               
 
@@ -752,7 +753,7 @@
 
 				document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
 			}	
-			function parar(){
+			function pausar(){
 				clearInterval(id);
 			}
 			function reiniciar(){
@@ -897,7 +898,7 @@
 				}
 			}
 			
-			function triggerChase() { //funcion que hace que nos persiga el Minotaruo
+			function perseguir() { //funcion que hace que nos persiga el Minotaruo
 				
 				correct.position.set(mino.position.x,20,mino.position.z);
 				
@@ -920,7 +921,7 @@
 					return false;
 				}
 			}
-			function caught() {
+			function capturado() {
 				blocker.style.display = '';
 				instructions.innerHTML = "GAME OVER </br></br></br> Press ESC to restart";
 				game_over = true;
@@ -934,7 +935,7 @@
 			
 			function animateJugador(delta){
 					
-				DetectObstaculo(camera);
+				detectObstaculo(camera);
 				
 
 				velocity.x -= velocity.x * 10.0 * delta;
@@ -963,7 +964,7 @@
 			//Pared Movil del nivel 1
 			//---------------------------
 			
-			function ActivarTrampa(){
+			function activarTrampa(){
 				//cubo 22
 				var posicionx = (2-5)*45+22;
 				var posicionz = (6-5)*45+22;
@@ -991,36 +992,30 @@
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;	
 					
-					triggerChase();
+					perseguir();
 					if (correct.position.distanceTo(camera.position) < CATCHOFFSET) {
-						caught();
-						// Player is at an undetected distance
-						// Keep the dino moving and let the player keep moving too
+						capturado();
+						
+						
 					} else {
 						animateJugador(delta);
 						animateMino(delta);
 					}
 									
 					
-					ActivarTrampa();
+					activarTrampa();
 					//-------------------------
 					//Cambio al nivel 2 
 					//-------------------------
 					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
 						(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 1))
 					{
-						parar();
+						pausar();
 						CalculoPuntuacion();
 						reiniciar();
 						
-							
-						BorrarEscena(scene);
-						// Creo las paredes del laberinto 
-						createMazeCubes2();
-						// Creo el suelo 
-						createGround();
-						// Creo las paredes que delimitan el laberinto 
-						createPerimWalls();
+						crearNive2();
+
 						
 						level = 2;
 						cronometrar();
@@ -1030,7 +1025,7 @@
 					if((camera.position.x < mesh.position.x+10) && (camera.position.x > mesh.position.x-10) &&
 					(camera.position.z < mesh.position.z+10) && (camera.position.z > mesh.position.z-10) && (level === 2))
 					{
-						parar();
+						pausar();
 						CalculoPuntuacion();
 						game_over = true;
 						//Mensaje GAME OVER 
