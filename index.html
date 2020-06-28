@@ -49,6 +49,7 @@
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 			
 			import {VRButton} from '/examples/jsm/webxr/VRButton.js';
+			
 
 			var camera, scene, renderer, controls, effect, element, container, cube;
 
@@ -218,6 +219,7 @@
 						case 38: // up
 						case 87: // w
 							moveForward = true;
+							console.time("t1");
 							break;
 
 						case 37: // left
@@ -293,6 +295,7 @@
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
+				
 				
 				
 				crearNivel1();
@@ -957,7 +960,7 @@
 					controls.moveRight( - velocity.x * delta );
 					controls.moveForward( - velocity.z * delta );
 				}
-					
+			
 			}
 			
 			//---------------------------
@@ -1029,6 +1032,7 @@
 						instructions.innerHTML = "GAME OVER </br></br> " + " Tu puntacion: "+ marcador +"</br> Press ESC to restart";
 						instructions.style.display = '';
 					}
+					
 					
 					if(is_mobile){
 						effect.render(scene, camera);
