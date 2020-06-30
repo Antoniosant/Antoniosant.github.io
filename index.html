@@ -222,7 +222,6 @@
 						case 38: // up
 						case 87: // w
 							moveForward = true;
-							console.time("t1");
 							break;
 
 						case 37: // left
@@ -303,7 +302,7 @@
 				// create an object for the sound to play from
 				
 				var sphere = new THREE.SphereBufferGeometry( 10,10,10 );
-				var material = new THREE.MeshPhongMaterial();
+				var material = new THREE.MeshPhongMaterial({color:0x000000,emissive: 0x000000 });
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
