@@ -23,10 +23,15 @@
 		<div id="blocker"> 
 				
 				<div id="instructions">
-					<span style="font-size:36px">Click to play</span>
+					<span style="font-size:24px">¡Haga clic para empezar a jugar!</span>
 					<br /><br />
-					Move: WASD<br/>
-					Look: MOUSE or Device Orientation
+					<span style="font-size:40px">EL laberinto del Minotauro</span>
+					<br/><br /><br />
+					<span style="font-size:16px">Se encuentra atrapado en el laberiento del minotuaro.<br />
+					Para salir tendrás que encontrar el portal y atravesarlo. Para ello, deberás guiarte por tus sentidos y<br /> 
+					evitar que te atrape el minotauro.<br />
+					Controles: puedes utilizar las teclas W/S/A/D desde pc o el control del juego desde un smartphone.<br />
+					Cámara: puedes mover la cámara con el raton desde pc o moviendo tu cabeza desde un smartphone.</span>
 				</div>
 		</div>
 		
@@ -48,10 +53,13 @@
   
 			import { StereoEffect } from '/examples/jsm/effects/StereoEffect.js';
 			
-			import {VRButton} from '/examples/jsm/webxr/VRButton.js';
 			
 
-			var camera, scene, renderer, controls, effect, element, container, cube;
+			//-----------------------------------
+			// Variables globales
+			//-----------------------------------
+
+			var camera, scene, renderer, controls, effect, element, container;
 
 			var objects = [];
 			
@@ -86,10 +94,6 @@
 			
 			var mapSize,listener,sound,mesh;
 			
-			var loader ,cubito;
-		
-			var cosas = [];
-			
 			var level = 1; //indicador de nivel 
 			var marcador = 0; //Puntuacion
 			
@@ -118,10 +122,9 @@
 			var direccion = -1;
 			var trampa = false;
 			
-			
 			var flag = false;
 			
-			var pista;
+			var aviso, boton;
 				
 		
 			init();
@@ -236,8 +239,12 @@
 						case 68: // d
 							moveRight = true;
 							break;
-
-	
+						case 81:
+							aviso = true;
+							break;
+						case 69:
+							boton = true;
+							break;
 
 					}
 
@@ -266,7 +273,12 @@
 						case 68: // d
 							moveRight = false;
 							break;
-
+						case 81:
+							aviso = false;
+							break;
+						case 69:
+							boton = false;
+							break;
 					}
 
 				};
@@ -289,9 +301,9 @@
 				});
 
 				// create an object for the sound to play from
-				var texture = new THREE.TextureLoader().load( '/examples/textures/41PcmwPJfdL._AC_SX425_.jpg' );
+				
 				var sphere = new THREE.SphereBufferGeometry( 10,10,10 );
-				var material = new THREE.MeshPhongMaterial( { map:texture} );
+				var material = new THREE.MeshPhongMaterial();
 				mesh = new THREE.Mesh( sphere, material );
 				scene.add( mesh );
 				mesh.add(sound);
@@ -402,7 +414,7 @@
 					
 					
 					aux = vec.normalize();
-					aux = vec.applyAxisAngle(axis,Math.PI/2);
+					aux = vec.applyAxisAngle(axis,-3*Math.PI/4);
 					
 					raycaster.ray.direction.copy(aux);				
 					intersections = raycaster.intersectObjects( objects );
@@ -413,64 +425,6 @@
 			//Codigo Entorno
 			//----------------------------------------
 			
-			function createkey(){
-			
-			
-			var manager = new THREE.LoadingManager();
-				manager.addHandler( /\.dds$/i, new DDSLoader() );
-				
-				new MTLLoader( manager )
-					.setPath( 'examples/models/obj/key/' )
-					.load( 'old_key.mtl', function ( materials ) {
-
-						materials.preload();
-
-						 new OBJLoader( manager )
-							.setMaterials( materials )
-							.setPath( 'examples/models/obj/key/' )
-							.load( 'old_key.obj', function ( object ) {
-								
-								object.scale.x = 0.1;
-								object.scale.y = 0.1;
-								object.scale.z = 0.1;
-								object.position.z = -428;
-								object.position.x = 158;
-								object.position.y = 20;
-								
-								loader = object;
-								
-								
-								scene.add( loader);
-							
-							
-							var box = new THREE.BoxGeometry( 5,2,5 );
-							var material = new THREE.MeshPhongMaterial();
-							cube = new THREE.Mesh( box, material );
-					
-							cube.position.x = loader.position.x;
-							cube.position.y = 50;
-							cube.position.z = loader.position.z;
-				
-							cube.visible = false;
-				
-							scene.add( cube );
-
-							}, // called when loading is in progresses
-							function ( xhr ) {
-
-							console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-							}, 
-							function ( error ) {
-
-								console.log( 'An error happened' );
-
-							} );
-
-					} );
-					
-				
-			}
 			
 			function crearParedes2() {                         //Funcion que crea el segundo mapa
 				// Maze wall mapping, assuming even square
@@ -536,11 +490,7 @@
 					}
 				}
 				
-				
-				createkey();
-				
-					
-				
+							
 				mapSize = totalCubesWide * UNITWIDTH;
 				var positionx = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
 				var positionz = -(totalCubesWide/2)*UNITWIDTH+widthOffset;
@@ -699,40 +649,6 @@
 			}
 			
 			
-			/*function showtrick(camera){   
-				
-				var origin;
-				
-				//camera.getWorldPosition(origin);
-				
-				 // Get the rotation matrix from dino
-				var matrix = new THREE.Matrix4();
-				matrix.extractRotation(camera.matrix);
-				// Create direction vector
-				var directionFront = new THREE.Vector3(0, 0, 1);
-
-				// Get the vectors coming from the front of the dino
-				directionFront.applyMatrix4(matrix);
-				
-				// Create raycaster
-				var rayCasterF = new THREE.Raycaster(origin, directionFront,0,50);
-				
-				/*var intersects = rayCasterF.intersectObject(loader);
-				
-				
-				if (intersects.length() > 0) {
-					pista.visible = true;
-				}
-				pista.position.z = camera.position.z;
-				pista.position.x = camera.position.y;	
-				
-				/*var lookTarget = new THREE.Vector3();
-					lookTarget.copy(mesh.position);
-					lookTarget.y = mesh.position.y+30;
-
-					pista.lookAt(lookTarget);
-				
-			}*/
 			
 			//--------------------------------------
 			//Código para cronometro 
@@ -926,7 +842,7 @@
 			}
 			function capturado() {
 				blocker.style.display = '';
-				instructions.innerHTML = "GAME OVER </br></br></br> Press ESC to restart";
+				instructions.innerHTML = "GAME OVER </br></br></br> Presiona ESC o vuelve a cargar el juego";
 				game_over = true;
 				instructions.style.display = '';
 				minoalert.style.display = 'none';
@@ -983,6 +899,14 @@
 						direccion *= 0;
 				}
 			}
+			function avisar(){
+				 
+				 if(aviso){
+					//Mostramos advertencia
+					minoAlert.innerHTML = "Cuidado! Por favor, sientese.";
+					minoAlert.style.display = '';
+				 }
+			}
 			//---------------------------------------
 			// Loop del programa
 			//---------------------------------------
@@ -1002,7 +926,7 @@
 						animateJugador(delta);
 						animateMino(delta);
 					}			
-					
+					avisar();
 					activarTrampa();
 					//-------------------------
 					//Cambio al nivel 2 
