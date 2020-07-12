@@ -211,7 +211,9 @@ void loop() {
         }
       }
       
-      if ((ypr[0] * 180 / M_PI) > 20) {
+      if( (((ypr[0] * 180 / M_PI) > 20)&&((ypr[1] * 180 / M_PI)<0)) ||
+          (((ypr[0] * 180 / M_PI) < -100)&& ((ypr[0] * 180 / M_PI) > -130)&&((ypr[1] * 180 / M_PI)<0)) ) 
+      {
         Serial.println( "Atras");
         Keyboard.press('s');
       } else {
@@ -223,7 +225,9 @@ void loop() {
       } else {
         Keyboard.releaseAll();
       }
-      if ((ypr[0] * 180 / M_PI) < -20) {
+      if( (((ypr[0] * 180 / M_PI) < -20)&&((ypr[1] * 180 / M_PI)>0)) ||
+          (((ypr[0] * 180 / M_PI) > 100)&& ((ypr[0] * 180 / M_PI) < 130)&&((ypr[1] * 180 / M_PI)>0)) ) 
+      {
         Serial.println( "Adelante");
         Keyboard.press('w');
       } else {
